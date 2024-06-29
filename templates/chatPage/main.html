@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,42 +18,6 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-        }
-        .header {
-            width: 100%;
-            background-color: #282828;
-            padding: 20px;
-            text-align: center;
-            box-sizing: border-box;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            color: #F4A261;
-            font-weight: 700;
-        }
-        .header .buttons {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .header .buttons button {
-            background-color: #F4A261;
-            color: #1c1c1c;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-        .header .buttons button:hover {
-            background-color: #e6954e;
-            transform: scale(1.05);
         }
         .container {
             display: flex;
@@ -159,13 +125,6 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Soul Movie</h1>
-        <div class="buttons">
-            <button onclick="location.href='{% url 'login' %}'">로그인</button>
-            <button onclick="location.href='{% url 'signup' %}'">회원가입</button>
-        </div>
-    </div>
     <div class="container">
         <div class="sidebar">
             <h2>추천한 영화 목록</h2>
@@ -282,3 +241,4 @@
     </script>
 </body>
 </html>
+{% endblock %}
