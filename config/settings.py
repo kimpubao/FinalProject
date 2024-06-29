@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'common.apps.CommonConfig',
     'chatPage.apps.ChatpageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
