@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soul Movie</title>
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: #f0f0f0;
+            font-family: 'Noto Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .header {
+            width: 100%;
+            background-color: #333;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            color: #B39DDB; /* 파스텔 라벤더 */
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header .buttons {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        .header .buttons button {
+            background-color: #B2DFDB; /* 파스텔 민트 */
+            color: #1c1c1c;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .header .buttons button:hover {
+            background-color: #80CBC4;
+            transform: scale(1.05);
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #444;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar h2 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            font-weight: 500;
+            color: #B39DDB; /* 파스텔 라벤더 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .recommendation-log {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #666;
+            padding-bottom: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #D3D3D3;
+            transition: color 0.3s ease;
+        }
+        .recommendation-log:hover {
+            color: #B39DDB; /* 파스텔 라벤더 */
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+        .message {
+            display: flex;
+            margin-bottom: 10px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        .message.user .text {
+            background-color: #FFCCBC; /* 파스텔 핑크 */
+            margin-left: auto;
+            color: #1c1c1c;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .message.bot .text {
+            background-color: #B2DFDB; /* 파스텔 민트 */
+            margin-right: auto;
+            color: #1c1c1c;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .text {
+            padding: 10px 20px;
+            border-radius: 20px;
+            max-width: 60%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #444;
+            background-color: #444;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 0 0 10px 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #666;
+            background-color: #555;
+            color: #f0f0f0;
+            margin-right: 10px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border 0.3s ease;
+        }
+        .input-area input:focus {
+            border-color: #FFCCBC; /* 파스텔 핑크 */
+        }
+        .input-area button {
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #FFCCBC; /* 파스텔 핑크 */
+            color: #1c1c1c;
+            cursor: pointer;
+            width: 80px;
+            flex-shrink: 0;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .input-area button:hover {
+            background-color: #FFAB91;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Soul Movie</h1>
+        <div class="buttons">
+            <button onclick="location.href='login.html'">로그인</button>
+            <button onclick="location.href='join.html'">회원가입</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>추천한 영화 목록</h2>
+            <div id="recommendation-log"></div>
+        </div>
+        <div class="main">
+            <div class="chat-container">
+                <div id="chat-box" class="chat-box"></div>
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const recommendations = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chat-box');
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'message bot';
+            const botMessageTextDiv = document.createElement('div');
+            botMessageTextDiv.className = 'text';
+            botMessageDiv.appendChild(botMessageTextDiv);
+            chatBox.appendChild(botMessageDiv);
+
+            const welcomeMessage = '안녕하세요! 무엇을 도와드릴까요?';
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < welcomeMessage.length) {
+                    botMessageTextDiv.textContent += welcomeMessage.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 50);
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const recommendationLog = document.getElementById('recommendation-log');
+
+            if (input.value.trim() !== '') {
+                const userMessage = input.value.trim();
+
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message user';
+                userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
+                chatBox.appendChild(userMessageDiv);
+
+                const recommendedMovie = recommendMovie();
+                const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'message bot';
+                const botMessageTextDiv = document.createElement('div');
+                botMessageTextDiv.className = 'text';
+                botMessageDiv.appendChild(botMessageTextDiv);
+                chatBox.appendChild(botMessageDiv);
+
+                let i = 0;
+                const interval = setInterval(() => {
+                    if (i < botResponse.length) {
+                        botMessageTextDiv.textContent += botResponse.charAt(i);
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 50);
+
+                if (!recommendations[recommendedMovie]) {
+                    recommendations[recommendedMovie] = [
+                        {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
+                        {sender: 'user', text: userMessage},
+                        {sender: 'bot', text: botResponse}
+                    ];
+
+                    const recommendationLogDiv = document.createElement('div');
+                    recommendationLogDiv.className = 'recommendation-log';
+                    recommendationLogDiv.innerText = recommendedMovie;
+                    recommendationLogDiv.onclick = () => loadRecommendation(recommendedMovie);
+                    recommendationLog.appendChild(recommendationLogDiv);
+                }
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+                input.value = '';
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function recommendMovie() {
+            const movies = ["인셉션", "인터스텔라", "다크 나이트", "기생충", "타이타닉"];
+            return movies[Math.floor(Math.random() * movies.length)];
+        }
+
+        function loadRecommendation(key) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            const recommendation = recommendations[key];
+            recommendation.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.sender}`;
+                messageDiv.innerHTML = `<div class="text">${message.text}</div>`;
+                chatBox.appendChild(messageDiv);
+            });
+        }
+    </script>
+</body>
+</html>

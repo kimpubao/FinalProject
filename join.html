@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #141414;
+        color: #fff;
+    }
+
+    .join-form {
+        width: 300px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #333;
+        border-radius: 10px;
+    }
+
+    .join-form h2 {
+        margin-bottom: 20px;
+    }
+
+    .join-form input[type="text"], .join-form input[type="password"], .join-form input[type="date"], .join-form select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 0;
+        border-radius: 5px;
+        background: #444;
+        color: #fff;
+    }
+
+    .join-form .btn {
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 5px;
+        background: #e50914;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .join-form .btn:hover {
+        background: #f40612;
+    }
+
+    .email-section {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .email-section select,
+    .email-section input {
+        width: 48%;
+    }
+</style>
+<script>
+    function handleEmailDomainChange() {
+        const emailDomainSelect = document.getElementById('email-domain-select');
+        const emailDomainInput = document.getElementById('email-domain-input');
+
+        if (emailDomainSelect.value === 'custom') {
+            emailDomainInput.style.display = 'block';
+        } else {
+            emailDomainInput.style.display = 'none';
+            emailDomainInput.value = emailDomainSelect.value;
+        }
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        const emailPrefix = document.getElementById('email-prefix').value;
+        const emailDomain = document.getElementById('email-domain-input').value;
+
+        if (emailPrefix && emailDomain) {
+            alert('가입 성공! 이메일: ' + emailPrefix + '@' + emailDomain);
+            window.location.href = 'login.html';
+        } else {
+            alert('이메일을 입력해주세요.');
+        }
+    }
+</script>
+</head>
+<body>
+<form class="join-form" onsubmit="handleSubmit(event)">
+    <h2>회원가입</h2>
+    <input type="text" placeholder="아이디">
+    <input type="password" placeholder="비밀번호">
+    <input type="password" placeholder="비밀번호 확인">
+    <input type="text" placeholder="이름">
+    <input type="date">
+    <div class="email-section">
+        <input type="text" id="email-prefix" placeholder="이메일">
+        <select id="email-domain-select" onchange="handleEmailDomainChange()">
+            <option value="naver.com">naver.com</option>
+            <option value="gmail.com">gmail.com</option>
+            <option value="daum.net">daum.net</option>
+            <option value="nate.com">nate.com</option>
+            <option value="custom">직접입력</option>
+        </select>
+    </div>
+    <input type="text" id="email-domain-input" placeholder="도메인 입력" style="display:none; margin-top: 10px;">
+    <input type="submit" value="가입하기" class="btn">
+</form>
+</body>
+</html>

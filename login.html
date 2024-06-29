@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #141414;
+        color: #fff;
+    }
+
+    .login-form {
+        width: 300px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #333;
+        border-radius: 10px;
+    }
+
+    .login-form h2 {
+        margin-bottom: 20px;
+    }
+
+    .login-form input[type="text"], .login-form input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 0;
+        border-radius: 5px;
+        background: #444;
+        color: #fff;
+    }
+
+    .login-form .btn {
+        width: 100%;
+        padding: 10px;
+        border: 0;
+        border-radius: 5px;
+        background: #e50914;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .login-form .btn:hover {
+        background: #f40612;
+    }
+
+    .login-form a {
+        color: #bbb;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .login-form a:hover {
+        color: #fff;
+    }
+</style>
+<script>
+    function validateLogin(event) {
+        event.preventDefault();
+        const username = document.querySelector("#username").value;
+        const password = document.querySelector("#password").value;
+
+        // Replace these values with the correct credentials
+        const correctUsername = "user";
+        const correctPassword = "password";
+
+        if (username === correctUsername && password === correctPassword) {
+            alert("로그인 성공!");
+            window.location.href = "index.html"; // Redirect to the main page
+        } else {
+            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        }
+    }
+</script>
+</head>
+<body>
+<form class="login-form" onsubmit="validateLogin(event)">
+    <h2>로그인</h2>
+    <input type="text" id="username" placeholder="ID">
+    <input type="password" id="password" placeholder="Password">
+    <input type="checkbox"> 로그인 정보 저장
+    <input type="submit" value="Sign in" class="btn">
+    <div style="text-align:center;">
+        <a href="join.html">회원가입</a>
+    </div>
+</form>
+</body>
+</html>
