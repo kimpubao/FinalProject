@@ -20,7 +20,7 @@
         .header {
             width: 100%;
             background-color: #282828;
-            padding: 20px 20px 20px 20px;
+            padding: 20px;
             text-align: center;
             box-sizing: border-box;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -29,7 +29,7 @@
         .header h1 {
             margin: 0;
             font-size: 28px;
-            color: #F4A261; /* 연한 주황색 */
+            color: #F4A261;
             font-weight: 700;
         }
         .header .buttons {
@@ -47,9 +47,11 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .header .buttons button:hover {
             background-color: #e6954e;
+            transform: scale(1.05);
         }
         .container {
             display: flex;
@@ -66,7 +68,7 @@
             margin: 0 0 20px;
             font-size: 24px;
             font-weight: 500;
-            color: #F4A261; /* 연한 주황색 */
+            color: #F4A261;
         }
         .recommendation-log {
             margin-bottom: 10px;
@@ -74,7 +76,7 @@
             padding-bottom: 10px;
             cursor: pointer;
             font-size: 18px;
-            color: #D3D3D3; /* 베이지색 */
+            color: #D3D3D3;
         }
         .main {
             flex: 1;
@@ -85,7 +87,7 @@
             padding: 20px;
         }
         .chat-container {
-            width: 80%; /* Set the width to 80% */
+            width: 80%;
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -104,12 +106,12 @@
             transition: opacity 0.5s ease;
         }
         .message.user .text {
-            background-color: #F4A261; /* 연한 주황색 */
+            background-color: #F4A261;
             margin-left: auto;
-            color: #1c1c1c; /* 다크 회색 */
+            color: #1c1c1c;
         }
         .message.bot .text {
-            background-color: #444; /* 다크 회색 */
+            background-color: #444;
             margin-right: auto;
             color: white;
         }
@@ -118,7 +120,7 @@
             border-radius: 20px;
             max-width: 60%;
             word-wrap: break-word;
-            white-space: pre-wrap; /* 줄바꿈이 정상적으로 이루어지도록 설정 */
+            white-space: pre-wrap;
         }
         .input-area {
             display: flex;
@@ -143,11 +145,16 @@
             padding: 10px;
             border: none;
             border-radius: 20px;
-            background-color: #F4A261; /* 연한 주황색 */
-            color: #1c1c1c; /* 다크 회색 */
+            background-color: #F4A261;
+            color: #1c1c1c;
             cursor: pointer;
             width: 80px;
             flex-shrink: 0;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .input-area button:hover {
+            background-color: #e6954e;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -196,7 +203,7 @@
                 } else {
                     clearInterval(interval);
                 }
-            }, 50); // 글자가 나타나는 속도 조정
+            }, 50);
         });
 
         function sendMessage() {
@@ -207,13 +214,11 @@
             if (input.value.trim() !== '') {
                 const userMessage = input.value.trim();
 
-                // 사용자 메시지
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                // 봇 응답 (예시: 임의의 영화 추천)
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
@@ -223,7 +228,6 @@
                 botMessageDiv.appendChild(botMessageTextDiv);
                 chatBox.appendChild(botMessageDiv);
 
-                // 한글자씩 나타나는 효과
                 let i = 0;
                 const interval = setInterval(() => {
                     if (i < botResponse.length) {
@@ -232,9 +236,8 @@
                     } else {
                         clearInterval(interval);
                     }
-                }, 50); // 글자가 나타나는 속도 조정
+                }, 50);
 
-                // 추천 영화 목록에 추가
                 if (!recommendations[recommendedMovie]) {
                     recommendations[recommendedMovie] = [
                         {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
@@ -249,10 +252,7 @@
                     recommendationLog.appendChild(recommendationLogDiv);
                 }
 
-                // 맨 아래로 스크롤
                 chatBox.scrollTop = chatBox.scrollHeight;
-
-                // 입력 필드 초기화
                 input.value = '';
             }
         }
