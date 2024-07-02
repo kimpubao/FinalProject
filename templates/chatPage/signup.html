@@ -59,53 +59,34 @@
         width: 48%;
     }
 </style>
-<script>
-    function handleEmailDomainChange() {
-        const emailDomainSelect = document.getElementById('email-domain-select');
-        const emailDomainInput = document.getElementById('email-domain-input');
-
-        if (emailDomainSelect.value === 'custom') {
-            emailDomainInput.style.display = 'block';
-        } else {
-            emailDomainInput.style.display = 'none';
-            emailDomainInput.value = emailDomainSelect.value;
-        }
-    }
-
-    function handleSubmit(event) {
-        event.preventDefault();
-        const emailPrefix = document.getElementById('email-prefix').value;
-        const emailDomain = document.getElementById('email-domain-input').value;
-
-        if (emailPrefix && emailDomain) {
-            alert('가입 성공! 이메일: ' + emailPrefix + '@' + emailDomain);
-            window.location.href = 'login.html';
-        } else {
-            alert('이메일을 입력해주세요.');
-        }
-    }
-</script>
 </head>
 <body>
-<form class="join-form" onsubmit="handleSubmit(event)">
-    <h2>회원가입</h2>
-    <input type="text" placeholder="아이디">
-    <input type="password" placeholder="비밀번호">
-    <input type="password" placeholder="비밀번호 확인">
-    <input type="text" placeholder="이름">
-    <input type="date">
-    <div class="email-section">
-        <input type="text" id="email-prefix" placeholder="이메일">
-        <select id="email-domain-select" onchange="handleEmailDomainChange()">
-            <option value="naver.com">naver.com</option>
-            <option value="gmail.com">gmail.com</option>
-            <option value="daum.net">daum.net</option>
-            <option value="nate.com">nate.com</option>
-            <option value="custom">직접입력</option>
-        </select>
+    <div class="join-form">
+        <form method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            {% include "form_errors.html" %}
+            <div class="mb-3">
+                <label for="username">사용자 이름</label>
+                <input type="text" class="form-control" name="username" id="username"
+                       value="{{ form.username.value|default_if_none:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="password1">비밀번호</label>
+                <input type="password" class="form-control" name="password1" id="password1"
+                       value="{{ form.password1.value|default_if_none:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="password2">비밀번호 확인</label>
+                <input type="password" class="form-control" name="password2" id="password2"
+                       value="{{ form.password2.value|default_if_none:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="email">이메일</label>
+                <input type="text" class="form-control" name="email" id="email"
+                       value="{{ form.email.value|default_if_none:'' }}">
+            </div>
+            <button type="submit" class="btn">생성하기</button>
+        </form>
     </div>
-    <input type="text" id="email-domain-input" placeholder="도메인 입력" style="display:none; margin-top: 10px;">
-    <input type="submit" value="가입하기" class="btn">
-</form>
 </body>
 </html>

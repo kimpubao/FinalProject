@@ -49,8 +49,8 @@
                         <a class="nav-link" style="color: #F4A261;" href="{% url 'logout' %}">{{ user.username }} (로그아웃)</a>
                     {% else %}
                         <a class="nav-link" style="color: #F4A261;" href="{% url 'login' %}">로그인</a>
+                        <a class="nav-link" style="color: #F4A261;" href="{% url 'signup' %}">회원가입</a>
                     {% endif %}
-                    <a class="nav-link" style="color: #F4A261;" href="{% url 'signup' %}">회원가입</a>
                 </li>
             </ul>
         </div>
