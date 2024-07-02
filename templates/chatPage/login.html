@@ -59,34 +59,19 @@
         color: #fff;
     }
 </style>
-<script>
-    function validateLogin(event) {
-        event.preventDefault();
-        const username = document.querySelector("#username").value;
-        const password = document.querySelector("#password").value;
-
-        // Replace these values with the correct credentials
-        const correctUsername = "user";
-        const correctPassword = "password";
-
-        if (username === correctUsername && password === correctPassword) {
-            alert("로그인 성공!");
-            window.location.href = "index.html"; // Redirect to the main page
-        } else {
-            alert("아이디 또는 비밀번호가 틀렸습니다.");
-        }
-    }
-</script>
 </head>
 <body>
-<form class="login-form" onsubmit="validateLogin(event)">
+<form class="login-form" method="post" action="{% url 'login' %}">
+    {% csrf_token %}
     <h2>로그인</h2>
-    <input type="text" id="username" placeholder="ID">
-    <input type="password" id="password" placeholder="Password">
+    {% include 'form_errors.html' %}
+    <input type="text" name="username" id="username" placeholder="ID">
+    <input type="password" name="password" id="password" placeholder="Password">
     <input type="checkbox"> 로그인 정보 저장
-    <input type="submit" value="Sign in" class="btn">
+    <button type="submit" class="btn">로그인</button>
+    
     <div style="text-align:center;">
-        <a href="chatPage/signup.html">회원가입</a>
+        <a href="{% url 'signup' %}">회원가입</a>
     </div>
 </form>
 </body>
