@@ -1,9 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from common.forms import UserForm
-from django.contrib import messages
+from django.utils import timezone
+from .forms import QuestionForm
+from .models import Question
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 def index(request):
+    user_chat_list = Question.objects.order_by('-create_date')
+    # user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user.id))
     return render(request, 'chatPage/main.html')
 
 def loginPage(request):
@@ -26,3 +34,22 @@ def signup(request):
     else:
         form = UserForm()
     return render(request, 'chatPage/signup.html', {'form': form})
+
+def userchat(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        content = data.get('content')
+        author_id = data.get('author')
+
+        if content and author_id:  # Ensure content and author_id are present
+            # Handle the form saving here as needed
+            # For example:
+            form = QuestionForm(data)
+            if form.is_valid():
+                user = form.save(commit=False)
+                user.create_date = timezone.now()
+                user.author_id = author_id
+                user.save()
+
+            return JsonResponse({'message': 'Message received successfully!'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
