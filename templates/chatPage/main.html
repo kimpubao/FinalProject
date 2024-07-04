@@ -262,6 +262,9 @@
                     <div class="input-area">
                         <textarea id="user-input" name="content" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)"></textarea>
                         <input type="hidden" name="author" value="{{ user.id }}">
+                        <button style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)">
+                            <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004" alt="음성입력" width="30px" height="30px">
+                        </button>
                         <button type="submit" onclick="sendMessage(event)">전송</button>
                     </div>
                 </form>
@@ -410,6 +413,49 @@
                 toggleButton.classList.replace('right', 'left'); // 왼쪽 삼각형 아이콘으로 변경
                 toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
             }
+        }
+
+        function inputMike(event) {
+            event.preventDefault(); // 폼의 기본 제출 동작 방지
+            if (!('webkitSpeechRecognition' in window)) { // 음성 지원되는지 확인
+                alert('음성 인식을 지원하지 않는 브라우저입니다.');
+                return;
+            }
+
+            const messageArea = document.getElementById("user-input");
+            messageArea.innerText = "말하세요...";
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.start();
+            
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+
+                // 서버에 음성 데이터를 텍스트로 변환 요청
+                fetch("{% url 'mike' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: JSON.stringify({ speech: speechResult })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("user-input").value = data.transcribed_text;
+                    messageArea.innerText = "";
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    messageArea.innerText = "(오류가 발생했습니다)";
+                });
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                messageArea.innerText = "(음성 인식 오류가 발생했습니다)";
+            };
         }
     </script>
 </body>

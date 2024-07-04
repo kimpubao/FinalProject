@@ -7,6 +7,8 @@ from .models import Question
 from django.http import JsonResponse
 import json
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+import speech_recognition as sr
 
 
 def index(request):
@@ -51,4 +53,22 @@ def userchat(request):
                 user.save()
 
             return JsonResponse({'message': 'Message received successfully!'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def mike(request):
+    if request.method == 'POST':
+        recognizer = sr.Recognizer()
+        with sr.Microphone() as source: # 마이크에서 입력받기
+            audio = recognizer.listen(source)
+
+        try:
+            transcribed_text = recognizer.recognize_google(audio, language='ko-KR')
+        except sr.UnknownValueError:
+            transcribed_text = "(당신의 말을 이해하지 못했습니다.)"
+        except sr.RequestError as e:
+            transcribed_text = "(서비스에 문제가 발생했습니다; {e})"
+
+        return JsonResponse({'transcribed_text': transcribed_text})
     return JsonResponse({'error': 'Invalid request'}, status=400)
