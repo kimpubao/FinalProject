@@ -231,20 +231,24 @@
         </div>
         <div class="main">
             <div class="chat-container">
-                <div id="chat-box" class="chat-box"></div>
-                    <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
-                        {% csrf_token %}
-                        <div class="input-area">
-                            <textarea id="user-input" name="content" placeholder="메시지 입력..."></textarea>
-                            <input type="hidden" name="author" value="{{ user.id }}">
-                            <button type="submit" onclick="sendMessage(event)">전송</button>
+                <div id="chat-box" class="chat-box">
+                    {% for i in context %}
+                        <div class="message user">
+                            <div class="text">{{ i.content }}</div>
                         </div>
-                    </form>
+                    {% endfor %}
                 </div>
+                <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
+                    {% csrf_token %}
+                    <div class="input-area">
+                        <textarea id="user-input" name="content" placeholder="메시지 입력..."></textarea>
+                        <input type="hidden" name="author" value="{{ user.id }}">
+                        <button type="submit" onclick="sendMessage(event)">전송</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
     <script>
         const recommendations = {}; // 추천 영화 목록을 저장할 객체
 
@@ -284,7 +288,7 @@
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                // 영화 추천 및 봇 응답
+                // 봇 응답
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');

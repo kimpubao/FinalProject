@@ -5,14 +5,14 @@ from django.utils import timezone
 from .forms import QuestionForm
 from .models import Question
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
 
 
 def index(request):
-    user_chat_list = Question.objects.order_by('-create_date')
+    user_chat_list = Question.objects.order_by('create_date')
     # user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user.id))
-    return render(request, 'chatPage/main.html')
+    context = {'context': user_chat_list}
+    return render(request, 'chatPage/main.html', context)
 
 def loginPage(request):
     return render(request, 'chatPage/login.html')
@@ -41,9 +41,7 @@ def userchat(request):
         content = data.get('content')
         author_id = data.get('author')
 
-        if content and author_id:  # Ensure content and author_id are present
-            # Handle the form saving here as needed
-            # For example:
+        if content and author_id:
             form = QuestionForm(data)
             if form.is_valid():
                 user = form.save(commit=False)
