@@ -8,3 +8,4 @@ pandas==1.5.3
 openpyxl
 scikit-learn==1.2.2
 SpeechRecognition==3.10.4
+json
