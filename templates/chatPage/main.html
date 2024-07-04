@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Movie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM2x73n5Cr3TLZw6Y6KtHwjGnp+6osf3b5w5v6e" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="anonymous">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         
@@ -17,25 +17,25 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            margin: 0;
+            margin: 0; /* 기본 마진 제거 */
             overflow: hidden;
         }
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
+            margin: 0; /* 기본 마진 제거 */
         }
         .sidebar {
             width: 300px;
             background-color: #202020;
-            padding: 20px 0 20px 20px; /* 왼쪽 여백 제거 */
+            padding: 20px 0 20px 20px; /* 왼쪽 여백 추가 */
             overflow-y: auto;
             transition: width 0.3s ease;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
         .sidebar.collapsed {
-            width: 120px; /* '사이드바 열기'를 표시하기 위해 너비 조정 */
-            padding: 20px 5px 20px 5px; /* 왼쪽 여백 제거 */
+            width: 100px; /* 축소 시 너비를 넓혀 툴팁이 완전히 보이도록 설정 */
         }
         .sidebar h2 {
             margin: 0 0 20px 0; /* 왼쪽 여백 제거 */
@@ -50,29 +50,49 @@
             opacity: 0;
         }
         .toggle-button {
-            background-color: #f0ead6;
-            color: #202020;
+            background-color: #d3d3d3; /* 밝은 회색 */
             border: none;
-            padding: 10px;
             cursor: pointer;
-            border-radius: 5px;
+            width: 40px;
+            height: 40px;
             margin-bottom: 20px;
-            width: 100%;
             transition: background-color 0.3s ease;
+            position: relative;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            font-size: 16px;
-            font-weight: bold;
+            outline: none; /* 파란색 윤곽선 제거 */
+        }
+        .toggle-button:focus {
+            outline: none; /* 포커스 시 파란색 윤곽선 제거 */
         }
         .toggle-button:hover {
-            background-color: #e0d5b9;
+            background-color: #c0c0c0;
+        }
+        .toggle-button::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        .toggle-button.left::before {
+            border-width: 10px 15px 10px 0;
+            border-color: transparent #202020 transparent transparent;
+            left: 15px;
+            top: 10px;
+        }
+        .toggle-button.right::before {
+            border-width: 10px 0 10px 15px;
+            border-color: transparent transparent transparent #202020;
+            left: 10px;
+            top: 10px;
         }
         .toggle-button::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: -30px;
+            bottom: -35px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #202020;
@@ -84,6 +104,7 @@
             transition: opacity 0.3s ease;
             pointer-events: none;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
         }
         .toggle-button:hover::after {
             opacity: 1;
@@ -223,32 +244,21 @@
 <body>
     <div class="container">
         <div id="sidebar" class="sidebar">
-            <button class="toggle-button" onclick="toggleSidebar()" data-tooltip="사이드바 닫기">
-                recs
-            </button>
+            <button class="toggle-button left" onclick="toggleSidebar()" data-tooltip="사이드바 닫기"></button>
             <h2>추천한 영화 목록</h2>
             <div id="recommendation-log"></div>
         </div>
         <div class="main">
             <div class="chat-container">
-                <div id="chat-box" class="chat-box">
-                    {% for i in context %}
-                        <div class="message user">
-                            <div class="text">{{ i.content }}</div>
-                        </div>
-                    {% endfor %}
+                <div id="chat-box" class="chat-box"></div>
+                <div class="input-area">
+                    <textarea id="user-input" placeholder="메시지 입력..." oninput="adjustTextareaHeight()" onkeypress="handleKeyPress(event)"></textarea>
+                    <button onclick="sendMessage()">전송</button>
                 </div>
-                <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
-                    {% csrf_token %}
-                    <div class="input-area">
-                        <textarea id="user-input" name="content" placeholder="메시지 입력..."></textarea>
-                        <input type="hidden" name="author" value="{{ user.id }}">
-                        <button type="submit" onclick="sendMessage(event)">전송</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
+
     <script>
         const recommendations = {}; // 추천 영화 목록을 저장할 객체
 
@@ -274,21 +284,21 @@
             }, 50);
         });
 
-        async function sendMessage(event) {
-            event.preventDefault(); // 폼의 기본 제출 동작 방지
+        function sendMessage() {
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const recommendationLog = document.getElementById('recommendation-log');
-            const userMessage = input.value.trim();
 
-            if (userMessage !== '') {
+            if (input.value.trim() !== '') {
+                const userMessage = input.value.trim();
+
                 // 사용자 메시지 표시
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                // 봇 응답
+                // 영화 추천 및 봇 응답
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
@@ -307,26 +317,6 @@
                         clearInterval(interval);
                     }
                 }, 50);
-
-                // 서버에 메시지 전송 (AJAX)
-                const response = await fetch("{% url 'userchat' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({
-                        content: userMessage,
-                        author: '{{ user.id }}'
-                    })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log(result.message);
-                } else {
-                    console.error('Error:', response.statusText);
-                }
 
                 // 추천 영화 목록에 추가
                 if (!recommendations[recommendedMovie]) {
@@ -359,7 +349,7 @@
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                sendMessage(event);
+                sendMessage();
             }
         }
 
@@ -385,13 +375,14 @@
             const toggleButton = document.querySelector('.toggle-button');
             sidebar.classList.toggle('collapsed');
             if (sidebar.classList.contains('collapsed')) {
+                toggleButton.classList.replace('left', 'right'); // 오른쪽 삼각형 아이콘으로 변경
                 toggleButton.setAttribute('data-tooltip', '사이드바 열기');
             } else {
+                toggleButton.classList.replace('right', 'left'); // 왼쪽 삼각형 아이콘으로 변경
                 toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
             }
         }
     </script>
 </body>
 </html>
-<script></script>
 {% endblock %}
