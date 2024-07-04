@@ -17,7 +17,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            margin: 0; /* 기본 마진 제거 */
+            margin: 0;
             overflow: hidden;
         }
         .container {
@@ -29,7 +29,7 @@
         .sidebar {
             width: 300px;
             background-color: #202020;
-            padding: 20px 0 20px 20px; /* 왼쪽 여백 추가 */
+            padding: 20px 0 20px 20px; /* 왼쪽 여백 제거 */
             overflow-y: auto;
             transition: width 0.3s ease;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -250,15 +250,24 @@
         </div>
         <div class="main">
             <div class="chat-container">
-                <div id="chat-box" class="chat-box"></div>
-                <div class="input-area">
-                    <textarea id="user-input" placeholder="메시지 입력..." oninput="adjustTextareaHeight()" onkeypress="handleKeyPress(event)"></textarea>
-                    <button onclick="sendMessage()">전송</button>
+                <div id="chat-box" class="chat-box">
+                    {% for i in context %}
+                        <div class="message user">
+                            <div class="text">{{ i.content }}</div>
+                        </div>
+                    {% endfor %}
                 </div>
+                <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
+                    {% csrf_token %}
+                    <div class="input-area">
+                        <textarea id="user-input" name="content" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)"></textarea>
+                        <input type="hidden" name="author" value="{{ user.id }}">
+                        <button type="submit" onclick="sendMessage(event)">전송</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
     <script>
         const recommendations = {}; // 추천 영화 목록을 저장할 객체
 
@@ -284,21 +293,21 @@
             }, 50);
         });
 
-        function sendMessage() {
+        async function sendMessage(event) {
+            event.preventDefault(); // 폼의 기본 제출 동작 방지
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const recommendationLog = document.getElementById('recommendation-log');
+            const userMessage = input.value.trim();
 
-            if (input.value.trim() !== '') {
-                const userMessage = input.value.trim();
-
+            if (userMessage !== '') {
                 // 사용자 메시지 표시
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                // 영화 추천 및 봇 응답
+                // 봇 응답
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
@@ -317,6 +326,26 @@
                         clearInterval(interval);
                     }
                 }, 50);
+
+                // 서버에 메시지 전송 (AJAX)
+                const response = await fetch("{% url 'userchat' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        content: userMessage,
+                        author: '{{ user.id }}'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result.message);
+                } else {
+                    console.error('Error:', response.statusText);
+                }
 
                 // 추천 영화 목록에 추가
                 if (!recommendations[recommendedMovie]) {
@@ -349,7 +378,7 @@
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                sendMessage();
+                sendMessage(event);
             }
         }
 
@@ -385,4 +414,5 @@
     </script>
 </body>
 </html>
+<script></script>
 {% endblock %}
