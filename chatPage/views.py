@@ -6,11 +6,12 @@ from .forms import QuestionForm
 from .models import Question
 from django.http import JsonResponse
 import json
+from django.db.models import Q
 
 
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
-    # user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user.id))
+    user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user))
     context = {'context': user_chat_list}
     return render(request, 'chatPage/main.html', context)
 
