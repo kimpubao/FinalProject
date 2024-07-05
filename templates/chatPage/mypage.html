@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        .section {
+            padding: 20px;
+            margin-bottom: 30px;
+            background: #333;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-align: center; /* 제목 가운데 정렬 */
+        }
+
+        .section input[type="password"], .section button, .section textarea {
+            width: calc(100% - 22px); /* padding 및 border를 고려한 너비 조정 */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: #444;
+            color: #fff;
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+            box-sizing: border-box; /* 박스 크기 조정 */
+        }
+
+        .section button {
+            background: #ff9800; /* 메인 페이지의 버튼 색상 */
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none; /* 파란색 라인 제거 */
+            font-size: 1em;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .section button:hover {
+            background: #e67e22; /* 메인 페이지의 호버 색상 */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dark-mode {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .dark-mode .section {
+            background: #fff;
+            color: #000;
+        }
+
+        .dark-mode .section input[type="password"], 
+        .dark-mode .section button, 
+        .dark-mode .section textarea {
+            background: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+
+        .dark-mode .section button {
+            background: #ff9800; /* 다크 모드에서도 동일한 버튼 색상 */
+        }
+
+        .dark-mode .section button:hover {
+            background: #e67e22; /* 다크 모드에서도 동일한 호버 색상 */
+        }
+
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 추가된 스타일 */
+        .horizontal-sections {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .horizontal-sections .section {
+            flex: 1;
+            margin-bottom: 0; /* 기본 마진 제거 */
+        }
+
+        .chat-extraction {
+            margin-top: 30px; /* 추가된 공간 */
+        }
+    </style>
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function toggleSpeechButton() {
+            // 빈 함수로 변경하여 음성 인식 버튼이 나타나지 않도록 함
+        }
+
+        function extractChatHistory() {
+            const chatHistory = document.getElementById('chat-history').value;
+            const blob = new Blob([chatHistory], { type: 'text/plain' });
+            const anchor = document.createElement('a');
+            anchor.download = 'chat_history.txt';
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target = '_blank';
+            anchor.click();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>비밀번호 설정</h2>
+            <input type="password" placeholder="새 비밀번호">
+            <input type="password" placeholder="비밀번호 확인">
+            <button>비밀번호 변경</button>
+        </div>
+        <div class="horizontal-sections">
+            <div class="section">
+                <h2>화면 색상 반전</h2>
+                <button onclick="toggleDarkMode()">색상 반전</button>
+            </div>
+            <div class="section">
+                <h2>음성 인식 버튼 숨기기 / 보이기</h2>
+                <button onclick="toggleSpeechButton()">음성 인식 버튼 숨기기 / 보이기</button>
+                <button id="speech-button" class="hidden">음성 인식</button>
+            </div>
+        </div>
+        <div class="section chat-extraction">
+            <h2>대화 기록 추출</h2>
+            <textarea id="chat-history" rows="10" placeholder="대화 기록 입력"></textarea>
+            <button onclick="extractChatHistory()">대화 기록 추출</button>
+        </div>
+        <div class="section">
+            <h2>회원 탈퇴</h2>
+            <form method="POST" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+                <button type="submit">회원 탈퇴</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
