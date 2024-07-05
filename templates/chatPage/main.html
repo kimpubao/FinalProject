@@ -176,7 +176,7 @@
 
         /* 채팅 컨테이너 스타일 */
         .chat-container {
-            width: 80%;
+            width: 100%;
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -208,6 +208,10 @@
             border: 2px solid #1a1a1a;
         }
 
+        .news{
+            width: 300px;
+        }
+        
         /* 메시지 스타일 */
         .message {
             display: flex;
@@ -318,6 +322,11 @@
             .recommendation-log {
                 display: none;
             }
+
+            .news {
+                width: 100%;
+                margin: 20px 0 0 0; /* 위쪽 여백 추가 */
+            }
         }
     </style>
 </head>
@@ -353,7 +362,13 @@
                 </form>
             </div>
         </div>
+        <div class="news">
+            {% for n in news %}
+                <p><a href="{{n.0}}">{{n.1}}</a></p>
+            {% endfor %}
+        </div>
     </div>
+    
     <script>
         const recommendations = {}; // 추천 영화 목록을 저장할 객체
 

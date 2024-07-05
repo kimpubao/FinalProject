@@ -9,12 +9,25 @@ import json
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import speech_recognition as sr
+import requests
+from bs4 import BeautifulSoup
 
 
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
     user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user))
-    context = {'context': user_chat_list}
+    url = 'https://www.yna.co.kr/entertainment/movies'
+    response = requests.get(url)
+    html = response.text
+    soup = BeautifulSoup(html, 'html.parser')
+    news_data = soup.select('#container > div > div > div.section01 > section > div.list-type038 > ul .news-con .tit-news')
+    news_link = soup.select('#container > div > div > div.section01 > section > div.list-type038 > ul .news-con .tit-wrap')
+    news_text = []
+    # news_links = []
+    for i in range(len(news_data)):
+        news_text.append([news_link[i].attrs['href'], news_data[i].text])
+        # news_links.append()
+    context = {'context': user_chat_list, 'news': news_text}
     return render(request, 'chatPage/main.html', context)
 
 def loginPage(request):
