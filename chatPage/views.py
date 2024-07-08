@@ -1,3 +1,4 @@
+import io
 import sqlite3
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -5,7 +6,7 @@ from common.forms import UserForm
 from django.utils import timezone
 from .forms import QuestionForm
 from .models import Question
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import json
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
@@ -13,10 +14,11 @@ import speech_recognition as sr
 import requests
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
-
+import datetime
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
-    user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user))
+    user_chat_list = user_chat_list.filter(Q(author__id = request.user.id))
+    # user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user))
     url = 'https://www.yna.co.kr/entertainment/movies'
     response = requests.get(url)
     html = response.text
@@ -27,7 +29,6 @@ def index(request):
     # news_links = []
     for i in range(len(news_data)):
         news_text.append([news_link[i].attrs['href'], news_data[i].text])
-        # news_links.append()
     context = {'context': user_chat_list, 'news': news_text}
     return render(request, 'chatPage/main.html', context)
 
@@ -109,3 +110,19 @@ def change_password(request):
             login(request, user)
             return redirect('/')
         return JsonResponse({'error': 'password error'}, status=400)
+
+def chat_export(request):
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    cursor.execute("SELECT content, create_date FROM chatPage_question WHERE author_id = ?", (request.user.id,))
+    chat_log = cursor.fetchall()
+    print('test')
+    output = io.StringIO()
+    for content, create_date in chat_log: # 텍스트 파일 작성
+        output.write(f"[{create_date}]: {content}\n")
+
+    # 텍스트 파일을 HTTP 응답으로 반환
+    response = HttpResponse(output.getvalue(), content_type='text/plain')
+    now_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    response['Content-Disposition'] = f'attachment; filename=chat_log{now_time}.txt'
+    return response

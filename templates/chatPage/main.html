@@ -27,54 +27,39 @@
             display: flex;
             flex: 1;
             overflow: hidden;
-            margin: 0; /* 기본 마진 제거 */
+            margin: 0;
         }
 
         /* 사이드바 스타일 */
         .sidebar {
             width: 300px;
             background-color: #202020;
-            padding: 20px 0 20px 20px; /* 왼쪽 여백 제거 */
+            padding: 20px;
             overflow-y: auto;
             transition: width 0.3s ease;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: #2a2a2a #1a1a1a; /* Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #2a2a2a #1a1a1a;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 추가: 컨텐츠를 상하로 정렬 */
-        }
-
-        /* 사이드바 스크롤바 스타일 */
-        .sidebar::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: #1a1a1a; 
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background-color: #2a2a2a; 
-            border-radius: 10px;
-            border: 2px solid #1a1a1a;
+            justify-content: space-between;
+            margin: 0; /* 여백 제거 */
         }
 
         /* 축소된 사이드바 스타일 */
         .sidebar.collapsed {
-            width: 100px; /* 축소 시 너비를 넓혀 툴팁이 완전히 보이도록 설정 */
+            width: 100px;
         }
 
         /* 사이드바 제목 스타일 */
         .sidebar h2 {
-            margin: 0 0 20px 0; /* 왼쪽 여백 제거 */
+            margin: 0 0 20px 0;
             font-size: 24px;
             font-weight: 500;
             color: #f4a261;
             transition: font-size 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
         }
 
-        /* 축소된 사이드바 제목 스타일 */
         .sidebar.collapsed h2 {
             font-size: 18px;
             margin: 0;
@@ -83,7 +68,7 @@
 
         /* 사이드바 토글 버튼 스타일 */
         .toggle-button {
-            background-color: #d3d3d3; /* 밝은 회색 */
+            background-color: #d3d3d3;
             border: none;
             cursor: pointer;
             width: 40px;
@@ -95,11 +80,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            outline: none; /* 파란색 윤곽선 제거 */
+            outline: none;
         }
 
         .toggle-button:focus {
-            outline: none; /* 포커스 시 파란색 윤곽선 제거 */
+            outline: none;
         }
 
         .toggle-button:hover {
@@ -152,14 +137,14 @@
 
         /* 추천 영화 로그 스타일 */
         .recommendation-log {
-            margin: 0 0 10px 0; /* 왼쪽 여백 제거 */
+            margin: 0 0 10px 0;
             border-bottom: 1px solid #444;
             padding-bottom: 10px;
             cursor: pointer;
             font-size: 18px;
             color: #d3d3d3;
             transition: font-size 0.3s ease, opacity 0.3s ease;
-            text-align: left; /* 텍스트를 왼쪽 정렬 */
+            text-align: left;
         }
 
         .sidebar.collapsed .recommendation-log {
@@ -192,21 +177,20 @@
             padding: 20px;
             box-sizing: border-box;
             border-radius: 10px;
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: #2a2a2a #1a1a1a; /* Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #2a2a2a #1a1a1a;
         }
 
-        /* 채팅 박스 스크롤바 스타일 */
         .chat-box::-webkit-scrollbar {
             width: 8px;
         }
 
         .chat-box::-webkit-scrollbar-track {
-            background: #1a1a1a; 
+            background: #1a1a1a;
         }
 
         .chat-box::-webkit-scrollbar-thumb {
-            background-color: #2a2a2a; 
+            background-color: #2a2a2a;
             border-radius: 10px;
             border: 2px solid #1a1a1a;
         }
@@ -220,7 +204,7 @@
         }
 
         .message.user .text {
-            background-color: #f8c582; /* 연한 주황색 */
+            background-color: #f8c582;
             margin-left: auto;
             color: #1a1a1a;
         }
@@ -242,7 +226,7 @@
         /* 입력 영역 스타일 */
         .input-area {
             display: flex;
-            align-items: flex-end; /* 항목을 아래쪽에 정렬 */
+            align-items: flex-end;
             padding: 10px;
             border-top: 1px solid #444;
             background-color: #202020;
@@ -260,13 +244,13 @@
             background-color: #444;
             color: white;
             margin-right: 10px;
-            resize: none; /* 텍스트 영역 크기 조정 방지 */
-            height: 50px; /* 고정 높이 설정 */
-            font-size: 16px; /* 글꼴 크기 조정 */
-            line-height: 1.5; /* 줄 높이 조정 */
+            resize: none;
+            height: 50px;
+            font-size: 16px;
+            line-height: 1.5;
             box-sizing: border-box;
-            outline: none; /* 파란색 윤곽선 제거 */
-            overflow: hidden; /* 오버플로 콘텐츠 숨기기 */
+            outline: none;
+            overflow: hidden;
         }
 
         .input-area button {
@@ -278,14 +262,47 @@
             cursor: pointer;
             width: 80px;
             flex-shrink: 0;
-            height: 50px; /* 전송 버튼의 높이 고정 */
+            height: 50px;
             transition: background-color 0.3s ease, transform 0.3s ease;
-            align-self: flex-end; /* 버튼을 아래쪽에 정렬 */
+            align-self: flex-end;
         }
 
         .input-area button:hover {
             background-color: #e6954e;
             transform: scale(1.05);
+        }
+
+        /* 뉴스 섹션 스타일 */
+        .news {
+            width: 300px;
+            background-color: #202020;
+            padding: 20px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #2a2a2a #1a1a1a;
+            margin: 0; /* 여백 제거 */
+        }
+
+        .news p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .news a {
+            color: #d3d3d3;
+            text-decoration: none;
+        }
+
+        .news a:visited {
+            color: #1e90ff;
+        }
+
+        .news a:hover {
+            color: #ffffff;
+        }
+
+        .news a:active {
+            color: #1e90ff;
         }
 
         /* 미디어 쿼리: 작은 화면용 스타일 */
@@ -321,6 +338,11 @@
             .recommendation-log {
                 display: none;
             }
+
+            .news {
+                width: 100%;
+                height: 300px;
+            }
         }
 
         .mypage-button {
@@ -331,7 +353,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 20px;
-            width: 100%; /* 버튼의 너비를 100%로 설정 */
+            width: 100%;
         }
 
         .mypage-button:hover {
@@ -376,6 +398,8 @@
                 </form>
             </div>
         </div>
+        
+        <!-- 뉴스 섹션 -->
         <div class="news">
             {% for n in news %}
                 <p><a href="{{n.0}}">{{n.1}}</a></p>
@@ -383,7 +407,7 @@
         </div>
     </div>
     <script>
-        const recommendations = {}; // 추천 영화 목록을 저장할 객체
+        const recommendations = {};
 
         document.addEventListener('DOMContentLoaded', () => {
             const chatBox = document.getElementById('chat-box');
@@ -394,7 +418,7 @@
             botMessageDiv.appendChild(botMessageTextDiv);
             chatBox.appendChild(botMessageDiv);
 
-            // 초기 환영 메시지
+
             const welcomeMessage = '안녕하세요! 무엇을 도와드릴까요?';
             let i = 0;
             const interval = setInterval(() => {
@@ -408,20 +432,20 @@
         });
 
         async function sendMessage(event) {
-            event.preventDefault(); // 폼의 기본 제출 동작 방지
+            event.preventDefault();
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const recommendationLog = document.getElementById('recommendation-log');
             const userMessage = input.value.trim();
 
             if (userMessage !== '') {
-                // 사용자 메시지 표시
+                
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                // 봇 응답
+
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
@@ -441,7 +465,7 @@
                     }
                 }, 50);
 
-                // 서버에 메시지 전송 (AJAX)
+
                 const response = await fetch("{% url 'userchat' %}", {
                     method: 'POST',
                     headers: {
@@ -461,7 +485,7 @@
                     console.error('Error:', response.statusText);
                 }
 
-                // 추천 영화 목록에 추가
+
                 if (!recommendations[recommendedMovie]) {
                     recommendations[recommendedMovie] = [
                         {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
@@ -476,17 +500,17 @@
                     recommendationLog.appendChild(recommendationLogDiv);
                 }
 
-                // 채팅 박스 스크롤 조정
+
                 chatBox.scrollTop = chatBox.scrollHeight;
                 input.value = '';
-                input.style.height = '50px'; // 텍스트 영역 높이 초기화
+                input.style.height = '50px';
             }
         }
 
         function adjustTextareaHeight() {
             const input = document.getElementById('user-input');
-            input.style.height = '50px'; // 기본 높이로 초기화
-            input.style.height = input.scrollHeight + 'px'; // 내용에 따라 높이 조정
+            input.style.height = '50px';
+            input.style.height = input.scrollHeight + 'px';
         }
 
         function handleKeyPress(event) {
@@ -518,17 +542,17 @@
             const toggleButton = document.querySelector('.toggle-button');
             sidebar.classList.toggle('collapsed');
             if (sidebar.classList.contains('collapsed')) {
-                toggleButton.classList.replace('left', 'right'); // 오른쪽 삼각형 아이콘으로 변경
+                toggleButton.classList.replace('left', 'right');
                 toggleButton.setAttribute('data-tooltip', '사이드바 열기');
             } else {
-                toggleButton.classList.replace('right', 'left'); // 왼쪽 삼각형 아이콘으로 변경
+                toggleButton.classList.replace('right', 'left');
                 toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
             }
         }
 
         function inputMike(event) {
-            event.preventDefault(); // 폼의 기본 제출 동작 방지
-            if (!('webkitSpeechRecognition' in window)) { // 음성 지원되는지 확인
+            event.preventDefault();
+            if (!('webkitSpeechRecognition' in window)) {
                 alert('음성 인식을 지원하지 않는 브라우저입니다.');
                 return;
             }
@@ -543,7 +567,7 @@
             recognition.onresult = function(event) {
                 const speechResult = event.results[0][0].transcript;
 
-                // 서버에 음성 데이터를 텍스트로 변환 요청
+                
                 fetch("{% url 'mike' %}", {
                     method: "POST",
                     headers: {
