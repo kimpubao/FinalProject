@@ -10,4 +10,7 @@ urlpatterns = [
     path('userchat/', views.userchat, name='userchat'),
     path('mike/', views.mike, name='mike'),
     path('mypage/', views.mypage, name='mypage'),
+    path('delete_account/', views.delete_account, name='delete_account'),
+    path('change_password/', views.change_password, name='change_password'),
+
 ]

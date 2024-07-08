@@ -1,3 +1,4 @@
+import sqlite3
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from common.forms import UserForm
@@ -11,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 import speech_recognition as sr
 import requests
 from bs4 import BeautifulSoup
-
+from django.contrib.auth.models import User
 
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
@@ -88,3 +89,23 @@ def mike(request):
 
 def mypage(request):
     return render(request, 'chatPage/mypage.html')
+
+def delete_account(request):
+    if request.method == 'POST':
+        conn = sqlite3.connect('db.sqlite3')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM auth_user WHERE id = ?", (request.user.id,))
+        conn.commit()
+        conn.close()
+        return redirect('/')
+    
+def change_password(request):
+    if request.method == 'POST':
+        if request.POST.get('password1') == request.POST.get('password2'):
+            user = User.objects.get(username = request.user)
+            user.set_password(request.POST.get('password2'))
+            user.save()
+            user = authenticate(username=request.user, password=request.POST.get('password2'))
+            login(request, user)
+            return redirect('/')
+        return JsonResponse({'error': 'password error'}, status=400)

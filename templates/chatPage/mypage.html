@@ -147,9 +147,12 @@
     <div class="container">
         <div class="section">
             <h2>비밀번호 설정</h2>
-            <input type="password" placeholder="새 비밀번호">
-            <input type="password" placeholder="비밀번호 확인">
-            <button>비밀번호 변경</button>
+            <form method="POST" action="{% url 'change_password' %}">
+                {% csrf_token %}
+                <input type="password" name="password1" placeholder="새 비밀번호">
+                <input type="password" name="password2" placeholder="비밀번호 확인">
+                <button type="submit">비밀번호 변경</button>
+            </form>
         </div>
         <div class="horizontal-sections">
             <div class="section">
@@ -169,7 +172,7 @@
         </div>
         <div class="section">
             <h2>회원 탈퇴</h2>
-            <form method="POST" action="#">
+            <form method="POST" action="{% url 'delete_account' %}">
                 {% csrf_token %}
                 <button type="submit">회원 탈퇴</button>
             </form>
