@@ -85,3 +85,6 @@ def mike(request):
 
         return JsonResponse({'transcribed_text': transcribed_text})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def mypage(request):
+    return render(request, 'chatPage/mypage.html')

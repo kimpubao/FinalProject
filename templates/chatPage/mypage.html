@@ -169,7 +169,7 @@
         </div>
         <div class="section">
             <h2>회원 탈퇴</h2>
-            <form method="POST" action="{% url 'delete_account' %}">
+            <form method="POST" action="#">
                 {% csrf_token %}
                 <button type="submit">회원 탈퇴</button>
             </form>

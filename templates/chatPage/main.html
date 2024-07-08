@@ -376,6 +376,11 @@
                 </form>
             </div>
         </div>
+        <div class="news">
+            {% for n in news %}
+                <p><a href="{{n.0}}">{{n.1}}</a></p>
+            {% endfor %}
+        </div>
     </div>
     <script>
         const recommendations = {}; // 추천 영화 목록을 저장할 객체
