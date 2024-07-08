@@ -4,3 +4,23 @@
 3. 처음 CPU로 돌린 결과 10-15분 걸림
 4. gpu로 돌린 결과 5초
 
+2024/7/5
+1. 87000의 대화로 모델을 만들어 봄
+2. 5분정도 걸림
+3. 300 epoch , batch=15,  Loss=0.005700
+4. 299 epoch, batch=5,   Loss=0.001500
+
+tokenizer = 'gpt2'
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+
+결과
+1)                                                 2)
+Response: 추천 해 줄 영화 있어?
+2집 근처에는 병원 �
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+
+답변은 여전히 안됨
+gpt 3.5 모델을 사용하거나, 데이터를 어떻게 더 전처리 하는지 알아야 할 거 같음
+
+Response: 아니 어제 머했냐고 20분 거리에 있어.
+2집 
