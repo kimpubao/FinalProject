@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
@@ -132,15 +134,6 @@
             // 빈 함수로 변경하여 음성 인식 버튼이 나타나지 않도록 함
         }
 
-        function extractChatHistory() {
-            const chatHistory = document.getElementById('chat-history').value;
-            const blob = new Blob([chatHistory], { type: 'text/plain' });
-            const anchor = document.createElement('a');
-            anchor.download = 'chat_history.txt';
-            anchor.href = window.URL.createObjectURL(blob);
-            anchor.target = '_blank';
-            anchor.click();
-        }
     </script>
 </head>
 <body>
@@ -167,8 +160,10 @@
         </div>
         <div class="section chat-extraction">
             <h2>대화 기록 추출</h2>
-            <textarea id="chat-history" rows="10" placeholder="대화 기록 입력"></textarea>
-            <button onclick="extractChatHistory()">대화 기록 추출</button>
+            <form method="POST" action="{% url 'chat_export' %}">
+                {% csrf_token %}
+                <button type="submit">대화 기록 추출</button>
+            </form>
         </div>
         <div class="section">
             <h2>회원 탈퇴</h2>
@@ -180,3 +175,4 @@
     </div>
 </body>
 </html>
+{% endblock %}
