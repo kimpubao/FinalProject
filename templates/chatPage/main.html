@@ -274,7 +274,7 @@
 
         /* 뉴스 섹션 스타일 */
         .news {
-            width: 300px;
+            width: 300px; /* 기본 너비 설정 */
             background-color: #202020;
             padding: 20px;
             overflow-y: auto;
@@ -353,11 +353,13 @@
                 display: none;
             }
 
+            /* 뉴스 섹션이 작은 화면에서 자동으로 조정되도록 설정 */
             .news {
-                width: 100%;
-                height: 300px;
+                width: 100%; /* 너비를 100%로 설정 */
+                height: auto; /* 높이를 자동으로 설정 */
+                max-height: 300px; /* 최대 높이를 300px로 설정 */
                 position: static; /* 위치 속성 제거 */
-                box-shadow: none;
+                box-shadow: none; /* 그림자 제거 */
             }
         }
 
