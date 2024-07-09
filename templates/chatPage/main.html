@@ -462,8 +462,29 @@
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
-                const recommendedMovie = recommendMovie();
-                const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
+                const response = await fetch("{% url 'userchat' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        content: userMessage,
+                        author: '{{ user.id }}'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    botResponse = result.message;
+                    console.log(result.message);
+                } else {
+                    console.error('Error:', response.statusText);
+                }
+
+
+                // const recommendedMovie = recommendMovie();
+                // const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'message bot';
                 const botMessageTextDiv = document.createElement('div');
@@ -481,38 +502,19 @@
                     }
                 }, 50);
 
-                const response = await fetch("{% url 'userchat' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({
-                        content: userMessage,
-                        author: '{{ user.id }}'
-                    })
-                });
+                // if (!recommendations[recommendedMovie]) {
+                //     recommendations[recommendedMovie] = [
+                //         {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
+                //         {sender: 'user', text: userMessage},
+                //         {sender: 'bot', text: botResponse}
+                //     ];
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log(result.message);
-                } else {
-                    console.error('Error:', response.statusText);
-                }
-
-                if (!recommendations[recommendedMovie]) {
-                    recommendations[recommendedMovie] = [
-                        {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
-                        {sender: 'user', text: userMessage},
-                        {sender: 'bot', text: botResponse}
-                    ];
-
-                    const recommendationLogDiv = document.createElement('div');
-                    recommendationLogDiv.className = 'recommendation-log';
-                    recommendationLogDiv.innerText = recommendedMovie;
-                    recommendationLogDiv.onclick = () => loadRecommendation(recommendedMovie);
-                    recommendationLog.appendChild(recommendationLogDiv);
-                }
+                //     const recommendationLogDiv = document.createElement('div');
+                //     recommendationLogDiv.className = 'recommendation-log';
+                //     recommendationLogDiv.innerText = recommendedMovie;
+                //     recommendationLogDiv.onclick = () => loadRecommendation(recommendedMovie);
+                //     recommendationLog.appendChild(recommendationLogDiv);
+                // }
 
                 chatBox.scrollTop = chatBox.scrollHeight;
                 input.value = '';
@@ -533,10 +535,10 @@
             }
         }
 
-        function recommendMovie() {
-            const movies = ["인셉션", "인터스텔라", "다크 나이트", "기생충", "타이타닉"];
-            return movies[Math.floor(Math.random() * movies.length)];
-        }
+        // function recommendMovie() {
+        //     const movies = ["인셉션", "인터스텔라", "다크 나이트", "기생충", "타이타닉"];
+        //     return movies[Math.floor(Math.random() * movies.length)];
+        // }
 
         function loadRecommendation(key) {
             const chatBox = document.getElementById('chat-box');

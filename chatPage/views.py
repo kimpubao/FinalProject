@@ -1,10 +1,12 @@
 import io
+import pickle
 import sqlite3
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+import pandas as pd
 from common.forms import UserForm
 from django.utils import timezone
-from .forms import QuestionForm
+from .forms import AnswerForm, QuestionForm
 from .models import Question
 from django.http import HttpResponse, JsonResponse
 import json
@@ -15,6 +17,11 @@ import requests
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 import datetime
+from numpy import dot
+from numpy.linalg import norm
+import os
+
+
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
     user_chat_list = user_chat_list.filter(Q(author__id = request.user.id))
@@ -66,8 +73,40 @@ def userchat(request):
                 user.create_date = timezone.now()
                 user.author_id = author_id
                 user.save()
+            print(os.getcwd())
+            df = pd.read_csv('./ChatBotData.csv')
+            
+            # 코사인 유사도 함수
+            def cos_sim(A, B):
+                return dot(A, B)/(norm(A)*norm(B))
 
-            return JsonResponse({'message': 'Message received successfully!'})
+            # 저장한 모델 및 데이터 로드
+            def load_model_and_data():
+                with open('chatbot_model.pkl', 'rb') as f:
+                    model, df = pickle.load(f)
+                return model, df
+
+            # 질문에 대한 답변 반환 함수
+            def return_answer(question, model, df):
+                embedding = model.encode(question)
+                df['score'] = df['embedding'].apply(lambda x: cos_sim(x, embedding))
+                return df.loc[df['score'].idxmax()]['A']
+
+            # 모델 및 데이터 로드
+            model, df = load_model_and_data()
+
+            # 질문
+            question = content
+            answer = return_answer(question, model, df)
+            form = AnswerForm()
+            answer_form = form.save(commit=False)
+            answer_form.content = answer
+            answer_form.create_date = timezone.now()
+            answer_form.question_id = request.user.id
+            answer_form.save()
+            
+            return JsonResponse({'message': answer})
+            # return JsonResponse({'message': 'Message received successfully!'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
