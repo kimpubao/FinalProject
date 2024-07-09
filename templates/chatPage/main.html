@@ -281,6 +281,20 @@
             scrollbar-width: thin;
             scrollbar-color: #2a2a2a #1a1a1a;
             margin: 0; /* 여백 제거 */
+            position: absolute; /* 위치 절대값 설정 */
+            right: 0; /* 오른쪽에 붙이기 */
+            top: 60px; /* 상단 네비게이션 바 높이만큼 아래로 */
+            bottom: 0; /* 하단에 붙이기 */
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-header {
+            font-size: 24px;
+            font-weight: 500;
+            color: #f4a261;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
         }
 
         .news p {
@@ -342,6 +356,8 @@
             .news {
                 width: 100%;
                 height: 300px;
+                position: static; /* 위치 속성 제거 */
+                box-shadow: none;
             }
         }
 
@@ -401,6 +417,7 @@
         
         <!-- 뉴스 섹션 -->
         <div class="news">
+            <div class="news-header">영화 뉴스</div>
             {% for n in news %}
                 <p><a href="{{n.0}}">{{n.1}}</a></p>
             {% endfor %}
@@ -417,7 +434,6 @@
             botMessageTextDiv.className = 'text';
             botMessageDiv.appendChild(botMessageTextDiv);
             chatBox.appendChild(botMessageDiv);
-
 
             const welcomeMessage = '안녕하세요! 무엇을 도와드릴까요?';
             let i = 0;
@@ -439,12 +455,10 @@
             const userMessage = input.value.trim();
 
             if (userMessage !== '') {
-                
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
-
 
                 const recommendedMovie = recommendMovie();
                 const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
@@ -465,7 +479,6 @@
                     }
                 }, 50);
 
-
                 const response = await fetch("{% url 'userchat' %}", {
                     method: 'POST',
                     headers: {
@@ -485,7 +498,6 @@
                     console.error('Error:', response.statusText);
                 }
 
-
                 if (!recommendations[recommendedMovie]) {
                     recommendations[recommendedMovie] = [
                         {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
@@ -499,7 +511,6 @@
                     recommendationLogDiv.onclick = () => loadRecommendation(recommendedMovie);
                     recommendationLog.appendChild(recommendationLogDiv);
                 }
-
 
                 chatBox.scrollTop = chatBox.scrollHeight;
                 input.value = '';
@@ -567,7 +578,6 @@
             recognition.onresult = function(event) {
                 const speechResult = event.results[0][0].transcript;
 
-                
                 fetch("{% url 'mike' %}", {
                     method: "POST",
                     headers: {
