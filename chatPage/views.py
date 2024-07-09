@@ -7,7 +7,7 @@ import pandas as pd
 from common.forms import UserForm
 from django.utils import timezone
 from .forms import AnswerForm, QuestionForm
-from .models import Question
+from .models import Answer, Question
 from django.http import HttpResponse, JsonResponse
 import json
 from django.db.models import Q
@@ -25,6 +25,13 @@ import os
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
     user_chat_list = user_chat_list.filter(Q(author__id = request.user.id))
+    bot_chat_list = Answer.objects.order_by('create_date')
+    bot_chat_list = bot_chat_list.filter(Q(question__id = request.user.id))
+    
+    chat_log = []
+    for i in range(len(bot_chat_list)):
+        chat_log.append(['user',user_chat_list[i].content, user_chat_list[i].create_date])
+        chat_log.append(['bot',bot_chat_list[i].content, bot_chat_list[i].create_date])
     # user_chat_list = user_chat_list.filter(Q(author__username__icontains = request.user))
     url = 'https://www.yna.co.kr/entertainment/movies'
     response = requests.get(url)
@@ -36,7 +43,7 @@ def index(request):
     # news_links = []
     for i in range(len(news_data)):
         news_text.append([news_link[i].attrs['href'], news_data[i].text])
-    context = {'context': user_chat_list, 'news': news_text}
+    context = {'context': chat_log, 'news': news_text}
     return render(request, 'chatPage/main.html', context)
 
 def loginPage(request):

@@ -398,9 +398,15 @@
             <div class="chat-container">
                 <div id="chat-box" class="chat-box">
                     {% for i in context %}
+                        {% if i.0 == 'user' %}
                         <div class="message user">
-                            <div class="text">{{ i.content }}</div>
+                            <div class="text">{{ i.1 }}</div>
                         </div>
+                        {% else %}
+                        <div class="message bot">
+                            <div class="text">{{ i.1 }}</div>
+                        </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
