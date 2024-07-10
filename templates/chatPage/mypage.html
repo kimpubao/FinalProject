@@ -157,9 +157,15 @@
             localStorage.setItem('darkMode', isDarkMode);
         }
 
-        // 음성 인식 버튼 토글 함수 (빈 함수로 변경하여 음성 인식 버튼이 나타나지 않도록 함)
+        // 음성 인식 버튼 토글 함수
         function toggleSpeechButton() {
-            // Do nothing
+            // 현재 숨김 상태를 로컬 스토리지에서 가져옴
+            const isHidden = localStorage.getItem('speechButtonHidden') === 'true';
+            // 새 숨김 상태를 로컬 스토리지에 저장
+            localStorage.setItem('speechButtonHidden', !isHidden);
+
+            // 메인 페이지로 음성 버튼 숨기기/보이기 이벤트 전송
+            window.opener.postMessage({ action: 'toggleSpeechButton' }, '*');
         }
     </script>
 </head>

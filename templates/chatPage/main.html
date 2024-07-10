@@ -509,7 +509,7 @@
                     <div class="input-area">
                         <textarea id="user-input" name="content" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)"></textarea>
                         <input type="hidden" name="author" value="{{ user.id }}">
-                        <button style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)">
+                        <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)">
                             <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004" alt="음성입력" width="30px" height="30px">
                         </button>
                         <button type="submit" onclick="sendMessage(event)">전송</button>
@@ -542,6 +542,9 @@
                     linkElement.classList.add('clicked');
                 }
             });
+
+            // 음성 버튼 상태 설정
+            toggleSpeechButtonVisibility();
         });
 
         // 반전 모드를 토글하는 함수
@@ -679,6 +682,26 @@
                 messageArea.innerText = "(음성 인식 오류가 발생했습니다)";
             };
         }
+
+        // 음성 버튼 숨기기 / 보이기 함수
+        function toggleSpeechButtonVisibility() {
+            const speechButton = document.getElementById('speech-button');
+            // 로컬 스토리지에서 음성 버튼 숨김 상태 가져오기
+            const isHidden = localStorage.getItem('speechButtonHidden') === 'true';
+            // 숨김 상태에 따라 버튼 보이기/숨기기
+            if (isHidden) {
+                speechButton.style.display = 'none';
+            } else {
+                speechButton.style.display = 'block';
+            }
+        }
+
+        // 메시지 수신 시 음성 버튼 토글
+        window.addEventListener('message', (event) => {
+            if (event.data.action === 'toggleSpeechButton') {
+                toggleSpeechButtonVisibility();
+            }
+        });
 
         // 뉴스 링크 클릭 시 색상 변경 함수
         document.addEventListener('click', (event) => {
