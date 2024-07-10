@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Page</title>
     <style>
+        /* Body 스타일 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #000;
@@ -15,12 +16,20 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
+        /* 반전 모드 스타일 */
+        .dark-mode {
+            background-color: #fff;
+            color: #000;
+        }
+
+        /* 메인 컨테이너 스타일 */
         .container {
             width: 80%;
             max-width: 800px;
             margin: 50px auto;
         }
 
+        /* 섹션 스타일 */
         .section {
             padding: 20px;
             margin-bottom: 30px;
@@ -31,12 +40,20 @@
             transition: background 0.3s, color 0.3s;
         }
 
+        /* 반전 모드 섹션 스타일 */
+        .dark-mode .section {
+            background: #ddd;
+            color: #000;
+        }
+
+        /* 섹션 제목 스타일 */
         .section h2 {
             margin-bottom: 15px;
             font-size: 1.5em;
             text-align: center; /* 제목 가운데 정렬 */
         }
 
+        /* 입력, 버튼, 텍스트 영역 스타일 */
         .section input[type="password"], .section button, .section textarea {
             width: calc(100% - 22px); /* padding 및 border를 고려한 너비 조정 */
             padding: 10px;
@@ -49,6 +66,15 @@
             box-sizing: border-box; /* 박스 크기 조정 */
         }
 
+        /* 반전 모드 입력, 텍스트 영역 스타일 */
+        .dark-mode .section input[type="password"], 
+        .dark-mode .section textarea {
+            background: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+
+        /* 버튼 스타일 */
         .section button {
             background: #ff9800; /* 메인 페이지의 버튼 색상 */
             color: #fff;
@@ -62,38 +88,13 @@
             width: 100%;
         }
 
+        /* 버튼 호버 스타일 */
         .section button:hover {
             background: #e67e22; /* 메인 페이지의 호버 색상 */
         }
 
         .hidden {
             display: none;
-        }
-
-        .dark-mode {
-            background-color: #fff;
-            color: #000;
-        }
-
-        .dark-mode .section {
-            background: #fff;
-            color: #000;
-        }
-
-        .dark-mode .section input[type="password"], 
-        .dark-mode .section button, 
-        .dark-mode .section textarea {
-            background: #fff;
-            color: #000;
-            border: 1px solid #ccc;
-        }
-
-        .dark-mode .section button {
-            background: #ff9800; /* 다크 모드에서도 동일한 버튼 색상 */
-        }
-
-        .dark-mode .section button:hover {
-            background: #e67e22; /* 다크 모드에서도 동일한 호버 색상 */
         }
 
         .fade-in {
@@ -109,13 +110,14 @@
             }
         }
 
-        /* 추가된 스타일 */
+        /* 수평 섹션 스타일 */
         .horizontal-sections {
             display: flex;
             justify-content: space-between;
             gap: 20px;
         }
 
+        /* 수평 섹션 내부 섹션 스타일 */
         .horizontal-sections .section {
             flex: 1;
             margin-bottom: 0; /* 기본 마진 제거 */
@@ -124,20 +126,46 @@
         .chat-extraction {
             margin-top: 30px; /* 추가된 공간 */
         }
+
+        .home-button {
+            margin-top: 30px; /* 추가된 공간 */
+        }
+
+        /* 반전 모드 버튼 스타일 유지 */
+        .dark-mode .section button {
+            background: #ff9800; /* 메인 페이지의 버튼 색상 유지 */
+            color: #fff;
+        }
+
+        .dark-mode .section button:hover {
+            background: #e67e22; /* 메인 페이지의 호버 색상 유지 */
+        }
     </style>
     <script>
+        // 페이지 로드 시 반전 모드 상태를 적용
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // 반전 모드를 토글하는 함수
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
         }
 
+        // 음성 인식 버튼 토글 함수 (빈 함수로 변경하여 음성 인식 버튼이 나타나지 않도록 함)
         function toggleSpeechButton() {
-            // 빈 함수로 변경하여 음성 인식 버튼이 나타나지 않도록 함
+            // Do nothing
         }
-
     </script>
 </head>
 <body>
     <div class="container">
+        <!-- 비밀번호 설정 섹션 -->
         <div class="section">
             <h2>비밀번호 설정</h2>
             <form method="POST" action="{% url 'change_password' %}">
@@ -147,6 +175,7 @@
                 <button type="submit">비밀번호 변경</button>
             </form>
         </div>
+        <!-- 색상 반전 및 음성 인식 버튼 섹션 -->
         <div class="horizontal-sections">
             <div class="section">
                 <h2>화면 색상 반전</h2>
@@ -158,14 +187,22 @@
                 <button id="speech-button" class="hidden">음성 인식</button>
             </div>
         </div>
-        <div class="section chat-extraction">
-            <h2>대화 기록 추출</h2>
-            <form method="POST" action="{% url 'chat_export' %}">
-                {% csrf_token %}
-                <button type="submit">대화 기록 추출</button>
-            </form>
+        <!-- 대화 기록 추출 및 홈 버튼 섹션 -->
+        <div class="horizontal-sections chat-extraction">
+            <div class="section">
+                <h2>대화 기록 추출</h2>
+                <form method="POST" action="{% url 'chat_export' %}">
+                    {% csrf_token %}
+                    <button type="submit">대화 기록 추출</button>
+                </form>
+            </div>
+            <div class="section">
+                <h2>메인 페이지로 이동</h2>
+                <button onclick="window.location.href='/'">Home</button>
+            </div>
         </div>
-        <div class="section">
+        <!-- 회원 탈퇴 섹션 -->
+        <div class="section home-button">
             <h2>회원 탈퇴</h2>
             <form method="POST" action="{% url 'delete_account' %}">
                 {% csrf_token %}

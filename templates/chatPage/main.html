@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         
-        /* 전체적인 레이아웃 및 스타일 설정 */
+        /* 기본 레이아웃 */
         body {
             background-color: #1a1a1a;
             color: #f0f0f0;
@@ -20,6 +20,12 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+        }
+
+        /* 다크 모드 레이아웃 */
+        .dark-mode {
+            background-color: #f0f0f0;
+            color: #1a1a1a;
         }
 
         /* 컨테이너 스타일 */
@@ -46,9 +52,19 @@
             margin: 0; /* 여백 제거 */
         }
 
+        .dark-mode .sidebar {
+            background-color: #e0e0e0;
+        }
+
         /* 축소된 사이드바 스타일 */
         .sidebar.collapsed {
             width: 100px;
+        }
+
+        .sidebar.collapsed h2 {
+            font-size: 18px;
+            margin: 0;
+            opacity: 0;
         }
 
         /* 사이드바 제목 스타일 */
@@ -60,10 +76,8 @@
             transition: font-size 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
         }
 
-        .sidebar.collapsed h2 {
-            font-size: 18px;
-            margin: 0;
-            opacity: 0;
+        .dark-mode .sidebar h2 {
+            color: #1a1a1a;
         }
 
         /* 사이드바 토글 버튼 스타일 */
@@ -135,6 +149,11 @@
             opacity: 1;
         }
 
+        .dark-mode .toggle-button::after {
+            background-color: #e0e0e0;
+            color: #1a1a1a;
+        }
+
         /* 추천 영화 로그 스타일 */
         .recommendation-log {
             margin: 0 0 10px 0;
@@ -152,6 +171,11 @@
             opacity: 0;
         }
 
+        .dark-mode .recommendation-log {
+            border-bottom: 1px solid #bbb;
+            color: #1a1a1a;
+        }
+
         /* 메인 콘텐츠 스타일 */
         .main {
             flex: 1;
@@ -160,6 +184,11 @@
             align-items: center;
             overflow: hidden;
             padding: 20px;
+        }
+
+        .dark-mode .main {
+            background-color: #f0f0f0;
+            color: #1a1a1a;
         }
 
         /* 채팅 컨테이너 스타일 */
@@ -195,6 +224,20 @@
             border: 2px solid #1a1a1a;
         }
 
+        .dark-mode .chat-box {
+            background-color: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .dark-mode .chat-box::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        .dark-mode .chat-box::-webkit-scrollbar-thumb {
+            background-color: #b0b0b0;
+            border: 2px solid #e0e0e0;
+        }
+
         /* 메시지 스타일 */
         .message {
             display: flex;
@@ -213,6 +256,16 @@
             background-color: #444;
             margin-right: auto;
             color: #f0f0f0;
+        }
+
+        .dark-mode .message.user .text {
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        .dark-mode .message.bot .text {
+            background-color: #ccc;
+            color: #1a1a1a;
         }
 
         .text {
@@ -272,6 +325,26 @@
             transform: scale(1.05);
         }
 
+        .dark-mode .input-area {
+            border-top: 1px solid #bbb;
+            background-color: #e0e0e0;
+        }
+
+        .dark-mode .input-area textarea {
+            border: 1px solid #bbb;
+            background-color: #fff;
+            color: #1a1a1a;
+        }
+
+        .dark-mode .input-area button {
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        .dark-mode .input-area button:hover {
+            background-color: #e67e22;
+        }
+
         /* 뉴스 섹션 스타일 */
         .news {
             width: 300px; /* 기본 너비 설정 */
@@ -297,6 +370,11 @@
             padding-bottom: 10px;
         }
 
+        .dark-mode .news-header {
+            border-bottom: 1px solid #bbb;
+            color: #1a1a1a;
+        }
+
         .news p {
             margin: 10px 0;
             font-size: 18px;
@@ -317,6 +395,23 @@
 
         .news a:active {
             color: #1e90ff;
+        }
+
+        .dark-mode .news {
+            background-color: #e0e0e0;
+        }
+
+        .dark-mode .news a {
+            color: #1a1a1a;
+        }
+
+        .dark-mode .news a:hover {
+            color: #444;
+        }
+
+        /* 클릭된 뉴스 링크 스타일 */
+        .news a.clicked {
+            color: #ff6347; /* 클릭된 링크의 색상 */
         }
 
         /* 미디어 쿼리: 작은 화면용 스타일 */
@@ -427,34 +522,50 @@
         <div class="news">
             <div class="news-header">영화 뉴스</div>
             {% for n in news %}
-                <p><a href="{{n.0}}">{{n.1}}</a></p>
+                <p><a href="{{n.0}}" class="news-link">{{n.1}}</a></p>
             {% endfor %}
         </div>
     </div>
     <script>
-        const recommendations = {};
-
+        // 페이지 로드 시 반전 모드 상태를 적용
         document.addEventListener('DOMContentLoaded', () => {
-            const chatBox = document.getElementById('chat-box');
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'message bot';
-            const botMessageTextDiv = document.createElement('div');
-            botMessageTextDiv.className = 'text';
-            botMessageDiv.appendChild(botMessageTextDiv);
-            chatBox.appendChild(botMessageDiv);
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
 
-            const welcomeMessage = '안녕하세요! 무엇을 도와드릴까요?';
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i < welcomeMessage.length) {
-                    botMessageTextDiv.textContent += welcomeMessage.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(interval);
+            // 클릭된 뉴스 링크 상태를 복원
+            const clickedLinks = JSON.parse(localStorage.getItem('clickedLinks')) || [];
+            clickedLinks.forEach(link => {
+                const linkElement = document.querySelector(`.news-link[href="${link}"]`);
+                if (linkElement) {
+                    linkElement.classList.add('clicked');
                 }
-            }, 50);
+            });
         });
 
+        // 반전 모드를 토글하는 함수
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // 사이드바 토글 함수
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.querySelector('.toggle-button');
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleButton.classList.replace('left', 'right');
+                toggleButton.setAttribute('data-tooltip', '사이드바 열기');
+            } else {
+                toggleButton.classList.replace('right', 'left');
+                toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
+            }
+        }
+
+        // 메시지 전송 함수
         async function sendMessage(event) {
             event.preventDefault();
             const input = document.getElementById('user-input');
@@ -488,9 +599,6 @@
                     console.error('Error:', response.statusText);
                 }
 
-
-                // const recommendedMovie = recommendMovie();
-                // const botResponse = `오늘 추천드리는 영화는 "${recommendedMovie}"입니다.`;
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'message bot';
                 const botMessageTextDiv = document.createElement('div');
@@ -508,32 +616,20 @@
                     }
                 }, 50);
 
-                // if (!recommendations[recommendedMovie]) {
-                //     recommendations[recommendedMovie] = [
-                //         {sender: 'bot', text: '안녕하세요! 무엇을 도와드릴까요?'},
-                //         {sender: 'user', text: userMessage},
-                //         {sender: 'bot', text: botResponse}
-                //     ];
-
-                //     const recommendationLogDiv = document.createElement('div');
-                //     recommendationLogDiv.className = 'recommendation-log';
-                //     recommendationLogDiv.innerText = recommendedMovie;
-                //     recommendationLogDiv.onclick = () => loadRecommendation(recommendedMovie);
-                //     recommendationLog.appendChild(recommendationLogDiv);
-                // }
-
                 chatBox.scrollTop = chatBox.scrollHeight;
                 input.value = '';
                 input.style.height = '50px';
             }
         }
 
+        // 텍스트 입력 시 높이 조정 함수
         function adjustTextareaHeight() {
             const input = document.getElementById('user-input');
             input.style.height = '50px';
             input.style.height = input.scrollHeight + 'px';
         }
 
+        // Enter 키를 눌렀을 때 메시지 전송 함수 호출
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -541,36 +637,7 @@
             }
         }
 
-        // function recommendMovie() {
-        //     const movies = ["인셉션", "인터스텔라", "다크 나이트", "기생충", "타이타닉"];
-        //     return movies[Math.floor(Math.random() * movies.length)];
-        // }
-
-        function loadRecommendation(key) {
-            const chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML = '';
-            const recommendation = recommendations[key];
-            recommendation.forEach(message => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.sender}`;
-                messageDiv.innerHTML = `<div class="text">${message.text}</div>`;
-                chatBox.appendChild(messageDiv);
-            });
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleButton = document.querySelector('.toggle-button');
-            sidebar.classList.toggle('collapsed');
-            if (sidebar.classList.contains('collapsed')) {
-                toggleButton.classList.replace('left', 'right');
-                toggleButton.setAttribute('data-tooltip', '사이드바 열기');
-            } else {
-                toggleButton.classList.replace('right', 'left');
-                toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
-            }
-        }
-
+        // 음성 인식 함수
         function inputMike(event) {
             event.preventDefault();
             if (!('webkitSpeechRecognition' in window)) {
@@ -612,6 +679,18 @@
                 messageArea.innerText = "(음성 인식 오류가 발생했습니다)";
             };
         }
+
+        // 뉴스 링크 클릭 시 색상 변경 함수
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('news-link')) {
+                event.target.classList.add('clicked');
+                const clickedLinks = JSON.parse(localStorage.getItem('clickedLinks')) || [];
+                if (!clickedLinks.includes(event.target.href)) {
+                    clickedLinks.push(event.target.href);
+                }
+                localStorage.setItem('clickedLinks', JSON.stringify(clickedLinks));
+            }
+        });
     </script>
 </body>
 </html>
