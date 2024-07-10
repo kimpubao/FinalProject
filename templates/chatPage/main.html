@@ -8,6 +8,7 @@
     <title>Soul Movie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="anonymous">
     <style>
+        /* 스타일 정의 */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         
         /* 기본 레이아웃 */
@@ -450,11 +451,11 @@
 
             /* 뉴스 섹션이 작은 화면에서 자동으로 조정되도록 설정 */
             .news {
-                width: 100%; /* 너비를 100%로 설정 */
-                height: auto; /* 높이를 자동으로 설정 */
-                max-height: 300px; /* 최대 높이를 300px로 설정 */
-                position: static; /* 위치 속성 제거 */
-                box-shadow: none; /* 그림자 제거 */
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                position: static;
+                box-shadow: none;
             }
         }
 
@@ -471,6 +472,20 @@
 
         .mypage-button:hover {
             background-color: #e67e22;
+        }
+
+        /* 페이드 인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -492,6 +507,10 @@
         <div class="main">
             <div class="chat-container">
                 <div id="chat-box" class="chat-box">
+                    <!-- 인사말 메시지를 위한 div 추가 -->
+                    <div class="message bot fade-in" id="greeting-message">
+                        <div class="text" id="greeting-text"></div>
+                    </div>
                     {% for i in context %}
                         {% if i.0 == 'user' %}
                         <div class="message user">
@@ -527,14 +546,14 @@
         </div>
     </div>
     <script>
-        // 페이지 로드 시 반전 모드 상태를 적용
+        // 페이지 로드 시 설정된 다크 모드 상태를 적용하고, 클릭된 뉴스 링크 상태를 복원
         document.addEventListener('DOMContentLoaded', () => {
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
             }
 
-            // 클릭된 뉴스 링크 상태를 복원
+            // 클릭된 뉴스 링크 상태를 로컬 스토리지에서 복원
             const clickedLinks = JSON.parse(localStorage.getItem('clickedLinks')) || [];
             clickedLinks.forEach(link => {
                 const linkElement = document.querySelector(`.news-link[href="${link}"]`);
@@ -545,16 +564,19 @@
 
             // 음성 버튼 상태 설정
             toggleSpeechButtonVisibility();
+
+            // 인사 문구 추가
+            typeGreetingMessage();
         });
 
-        // 반전 모드를 토글하는 함수
+        // 다크 모드를 토글하는 함수
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDarkMode = document.body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isDarkMode);
         }
 
-        // 사이드바 토글 함수
+        // 사이드바를 토글하는 함수
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.querySelector('.toggle-button');
@@ -568,7 +590,7 @@
             }
         }
 
-        // 메시지 전송 함수
+        // 메시지를 전송하는 함수
         async function sendMessage(event) {
             event.preventDefault();
             const input = document.getElementById('user-input');
@@ -577,11 +599,13 @@
             const userMessage = input.value.trim();
 
             if (userMessage !== '') {
+                // 사용자 메시지를 추가
                 const userMessageDiv = document.createElement('div');
                 userMessageDiv.className = 'message user';
                 userMessageDiv.innerHTML = `<div class="text">${userMessage}</div>`;
                 chatBox.appendChild(userMessageDiv);
 
+                // 서버에 메시지를 전송하고 응답을 받음
                 const response = await fetch("{% url 'userchat' %}", {
                     method: 'POST',
                     headers: {
@@ -602,6 +626,7 @@
                     console.error('Error:', response.statusText);
                 }
 
+                // 봇 메시지를 추가
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'message bot';
                 const botMessageTextDiv = document.createElement('div');
@@ -625,14 +650,14 @@
             }
         }
 
-        // 텍스트 입력 시 높이 조정 함수
+        // 텍스트 입력 시 높이를 조정하는 함수
         function adjustTextareaHeight() {
             const input = document.getElementById('user-input');
             input.style.height = '50px';
             input.style.height = input.scrollHeight + 'px';
         }
 
-        // Enter 키를 눌렀을 때 메시지 전송 함수 호출
+        // Enter 키를 눌렀을 때 메시지를 전송하는 함수 호출
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -640,7 +665,7 @@
             }
         }
 
-        // 음성 인식 함수
+        // 음성 인식 함수를 호출
         function inputMike(event) {
             event.preventDefault();
             if (!('webkitSpeechRecognition' in window)) {
@@ -683,7 +708,7 @@
             };
         }
 
-        // 음성 버튼 숨기기 / 보이기 함수
+        // 음성 버튼 숨기기 / 보이기 함수를 호출
         function toggleSpeechButtonVisibility() {
             const speechButton = document.getElementById('speech-button');
             // 로컬 스토리지에서 음성 버튼 숨김 상태 가져오기
@@ -696,10 +721,20 @@
             }
         }
 
-        // 메시지 수신 시 음성 버튼 토글
+        // MyPage에서 메시지를 수신하여 음성 버튼을 즉각적으로 토글
         window.addEventListener('message', (event) => {
             if (event.data.action === 'toggleSpeechButton') {
-                toggleSpeechButtonVisibility();
+                const speechButton = document.getElementById('speech-button');
+                if (speechButton.style.display === 'none') {
+                    speechButton.style.display = 'block';
+                    localStorage.setItem('speechButtonHidden', 'false');
+                } else {
+                    speechButton.style.display = 'none';
+                    localStorage.setItem('speechButtonHidden', 'true');
+                }
+                // 변경된 상태를 다시 MyPage로 전송하여 업데이트
+                const action = speechButton.style.display === 'none' ? 'show' : 'hide';
+                event.source.postMessage({ action: action }, '*');
             }
         });
 
@@ -714,6 +749,23 @@
                 localStorage.setItem('clickedLinks', JSON.stringify(clickedLinks));
             }
         });
+
+        // 인사말을 한 글자씩 표시하는 함수
+        function typeGreetingMessage() {
+            const greetingText = "안녕하세요. 무엇을 도와드릴까요?";
+            const greetingElement = document.getElementById('greeting-text');
+            let i = 0;
+
+            function type() {
+                if (i < greetingText.length) {
+                    greetingElement.textContent += greetingText.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                }
+            }
+
+            type();
+        }
     </script>
 </body>
 </html>

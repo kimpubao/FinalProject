@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Page</title>
     <style>
-        /* Body 스타일 */
+        /* 기본 스타일 정의 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #000;
@@ -50,12 +50,12 @@
         .section h2 {
             margin-bottom: 15px;
             font-size: 1.5em;
-            text-align: center; /* 제목 가운데 정렬 */
+            text-align: center;
         }
 
         /* 입력, 버튼, 텍스트 영역 스타일 */
         .section input[type="password"], .section button, .section textarea {
-            width: calc(100% - 22px); /* padding 및 border를 고려한 너비 조정 */
+            width: 100%;  /* 너비를 100%로 설정하여 버튼과 동일하게 만듭니다 */
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #555;
@@ -63,7 +63,7 @@
             background: #444;
             color: #fff;
             transition: background 0.3s, border-color 0.3s, color 0.3s;
-            box-sizing: border-box; /* 박스 크기 조정 */
+            box-sizing: border-box;
         }
 
         /* 반전 모드 입력, 텍스트 영역 스타일 */
@@ -76,21 +76,22 @@
 
         /* 버튼 스타일 */
         .section button {
-            background: #ff9800; /* 메인 페이지의 버튼 색상 */
+            background: #ff9800;
             color: #fff;
             cursor: pointer;
             transition: background 0.3s;
-            border: none; /* 파란색 라인 제거 */
+            border: none;
             font-size: 1em;
             padding: 12px;
             margin-top: 10px;
             border-radius: 5px;
             width: 100%;
+            box-sizing: border-box; /* 버튼에도 box-sizing 설정 */
         }
 
         /* 버튼 호버 스타일 */
         .section button:hover {
-            background: #e67e22; /* 메인 페이지의 호버 색상 */
+            background: #e67e22;
         }
 
         .hidden {
@@ -120,34 +121,37 @@
         /* 수평 섹션 내부 섹션 스타일 */
         .horizontal-sections .section {
             flex: 1;
-            margin-bottom: 0; /* 기본 마진 제거 */
+            margin-bottom: 0;
         }
 
         .chat-extraction {
-            margin-top: 30px; /* 추가된 공간 */
+            margin-top: 30px;
         }
 
         .home-button {
-            margin-top: 30px; /* 추가된 공간 */
+            margin-top: 30px;
         }
 
         /* 반전 모드 버튼 스타일 유지 */
         .dark-mode .section button {
-            background: #ff9800; /* 메인 페이지의 버튼 색상 유지 */
+            background: #ff9800;
             color: #fff;
         }
 
         .dark-mode .section button:hover {
-            background: #e67e22; /* 메인 페이지의 호버 색상 유지 */
+            background: #e67e22;
         }
     </style>
     <script>
-        // 페이지 로드 시 반전 모드 상태를 적용
+        // 페이지 로드 시 설정된 반전 모드 상태를 적용
         document.addEventListener('DOMContentLoaded', () => {
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
             }
+
+            // 음성 버튼 상태에 따라 버튼 텍스트 변경
+            updateSpeechButtonText();
         });
 
         // 반전 모드를 토글하는 함수
@@ -165,7 +169,33 @@
             localStorage.setItem('speechButtonHidden', !isHidden);
 
             // 메인 페이지로 음성 버튼 숨기기/보이기 이벤트 전송
-            window.opener.postMessage({ action: 'toggleSpeechButton' }, '*');
+            if (window.opener) {
+                window.opener.postMessage({ action: 'toggleSpeechButton' }, '*');
+            }
+
+            // 버튼 텍스트 변경
+            updateSpeechButtonText();
+        }
+
+        // 음성 버튼 상태에 따라 버튼 텍스트 변경
+        function updateSpeechButtonText() {
+            const isHidden = localStorage.getItem('speechButtonHidden') === 'true';
+            const button = document.getElementById('toggle-speech-button');
+            button.textContent = isHidden ? '음성 인식 버튼 보이기' : '음성 인식 버튼 숨기기';
+        }
+
+        // 메인 페이지에서 메시지를 수신하여 즉각적으로 반응하도록 설정
+        window.addEventListener('message', (event) => {
+            if (event.data.action === 'show') {
+                document.getElementById('toggle-speech-button').textContent = '음성 인식 버튼 보이기';
+            } else if (event.data.action === 'hide') {
+                document.getElementById('toggle-speech-button').textContent = '음성 인식 버튼 숨기기';
+            }
+        });
+
+        // 회원 탈퇴 확인 창
+        function confirmDelete() {
+            return confirm('정말 회원 탈퇴 하시겠습니까?');
         }
     </script>
 </head>
@@ -174,6 +204,7 @@
         <!-- 비밀번호 설정 섹션 -->
         <div class="section">
             <h2>비밀번호 설정</h2>
+            <!-- 비밀번호 변경 폼 -->
             <form method="POST" action="{% url 'change_password' %}">
                 {% csrf_token %}
                 <input type="password" name="password1" placeholder="새 비밀번호">
@@ -185,11 +216,13 @@
         <div class="horizontal-sections">
             <div class="section">
                 <h2>화면 색상 반전</h2>
+                <!-- 색상 반전 버튼 -->
                 <button onclick="toggleDarkMode()">색상 반전</button>
             </div>
             <div class="section">
                 <h2>음성 인식 버튼 숨기기 / 보이기</h2>
-                <button onclick="toggleSpeechButton()">음성 인식 버튼 숨기기 / 보이기</button>
+                <!-- 음성 인식 버튼 숨기기/보이기 버튼 -->
+                <button id="toggle-speech-button" onclick="toggleSpeechButton()">음성 인식 버튼 숨기기 / 보이기</button>
                 <button id="speech-button" class="hidden">음성 인식</button>
             </div>
         </div>
@@ -197,6 +230,7 @@
         <div class="horizontal-sections chat-extraction">
             <div class="section">
                 <h2>대화 기록 추출</h2>
+                <!-- 대화 기록 추출 폼 -->
                 <form method="POST" action="{% url 'chat_export' %}">
                     {% csrf_token %}
                     <button type="submit">대화 기록 추출</button>
@@ -204,13 +238,15 @@
             </div>
             <div class="section">
                 <h2>메인 페이지로 이동</h2>
+                <!-- 메인 페이지로 이동 버튼 -->
                 <button onclick="window.location.href='/'">Home</button>
             </div>
         </div>
         <!-- 회원 탈퇴 섹션 -->
         <div class="section home-button">
             <h2>회원 탈퇴</h2>
-            <form method="POST" action="{% url 'delete_account' %}">
+            <!-- 회원 탈퇴 폼 -->
+            <form method="POST" action="{% url 'delete_account' %}" onsubmit="return confirmDelete()">
                 {% csrf_token %}
                 <button type="submit">회원 탈퇴</button>
             </form>
