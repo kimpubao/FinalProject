@@ -61,3 +61,22 @@ Chatbot > 아유 키키 그래도 이번 추석은 잘 버틸 수 있겠어
 
 2024/7/16
 한국어 데이터를, 영어로 번역, 번역한 결과를 NLPAUG의 동의어 기능으로 증식 했으나 유의미한 결과가 안 나옴
+
+2024/7/17
+이 블로그의 코드를 이용해서 존댓 말로 바꿈
+
+결과
+user > 밥은 먹었니?
+Chatbot > 오늘 점심 어떤 거 드셨어요.
+user > 영화 추천 해줘
+Chatbot > 나는 모가디슈가 젤 재밌어요.
+user > 얌마 말좀 제대로 해봐
+Chatbot > 네 저 진짜 편해서 너가 저희 가자고 하면 바로 달려갈 듯해요.
+
+생각보다 잘 나옴
+
+
+출처:
+https://github.com/jongmin-oh/korean-formal-classifier
+https://velog.io/@acdongpgm/NLP.-%ED%95%9C%EA%B5%AD%EC%96%B4Korean%EC%97%90%EC%84%9C-%EB%B0%98%EB%A7%90informal%EC%9D%84-%EC%A1%B4%EB%8C%93%EB%A7%90formal%EB%A1%9C-%EB%B0%94%EA%BF%94%EC%A3%BC%EB%8A%94-%EB%B3%80%ED%99%98%EA%B8%B0convertor-korean-Formal-Convertor-Using-Deep-Learning
+https://velog.io/@acdongpgm/NLP.-%ED%95%9C%EA%B5%AD%EC%96%B4-%EC%A1%B4%EB%8C%93%EB%A7%90%EB%B0%98%EB%A7%90-%EB%B6%84%EB%A5%98%EB%AA%A8%EB%8D%B8-formal-classifier
