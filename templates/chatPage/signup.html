@@ -85,6 +85,31 @@
                 <input type="text" class="form-control" name="email" id="email"
                        value="{{ form.email.value|default_if_none:'' }}">
             </div>
+            <div class="mb-3">
+                <label for="gender">성별</label>
+                <select class="form-control" name="gender" id="gender">
+                    <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                    <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
+                    <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="age_group">연령대</label>
+                <select class="form-control" name="age_group" id="age_group">
+                    <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                    <option value="1" {% if form.gender.value == '1' %}selected{% endif %}>10대 이하</option>
+                    <option value="2" {% if form.gender.value == '2' %}selected{% endif %}>20대</option>
+                    <option value="3" {% if form.gender.value == '3' %}selected{% endif %}>30대</option>
+                    <option value="4" {% if form.gender.value == '4' %}selected{% endif %}>40대</option>
+                    <option value="5" {% if form.gender.value == '5' %}selected{% endif %}>50대</option>
+                    <option value="6" {% if form.gender.value == '6' %}selected{% endif %}>60대 이상</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="genre">선호 장르</label>
+                <input type="text" class="form-control" name="genre" id="genre"
+                       value="{{ form.genre.value|default_if_none:'' }}">
+            </div>
             <button type="submit" class="btn">생성하기</button>
         </form>
     </div>
