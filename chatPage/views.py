@@ -20,7 +20,8 @@ import datetime
 from numpy import dot
 from numpy.linalg import norm
 import os
-
+import torch
+from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel
 
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
@@ -69,6 +70,7 @@ def signup(request):
 
 def userchat(request):
     if request.method == 'POST':
+        device = torch.device('cuda:0')
         data = json.loads(request.body)
         content = data.get('content')
         author_id = data.get('author')
@@ -80,37 +82,53 @@ def userchat(request):
                 user.create_date = timezone.now()
                 user.author_id = author_id
                 user.save()
-            print(os.getcwd())
-            df = pd.read_csv('./ChatBotData.csv')
-            
-            # 코사인 유사도 함수
-            def cos_sim(A, B):
-                return dot(A, B)/(norm(A)*norm(B))
 
-            # 저장한 모델 및 데이터 로드
-            def load_model_and_data():
-                with open('chatbot_model.pkl', 'rb') as f:
-                    model, df = pickle.load(f)
-                return model, df
+            Q_TKN = "<usr>"
+            A_TKN = "<sys>"
+            BOS = '</s>'
+            EOS = '</s>'
+            MASK = '<unused0>'
+            SENT = '<unused1>'
+            PAD = '<pad>'
 
-            # 질문에 대한 답변 반환 함수
-            def return_answer(question, model, df):
-                embedding = model.encode(question)
-                df['score'] = df['embedding'].apply(lambda x: cos_sim(x, embedding))
-                return df.loc[df['score'].idxmax()]['A']
+            koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
+                        bos_token=BOS, eos_token=EOS, unk_token='<unk>',
+                        pad_token=PAD, mask_token=MASK) 
+            model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
 
-            # 모델 및 데이터 로드
-            model, df = load_model_and_data()
+            model_path = "chatbot_model_497373.pth" 
+            model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
+            checkpoint = torch.load(model_path)
+            model.load_state_dict(checkpoint["model_state_dict"])
+            model.eval()
+            model.to(device)
 
-            # 질문
-            question = content
-            answer = return_answer(question, model, df)
+            with torch.no_grad():
+                q = content.strip()
+                a = ""
+                while True:
+                    input_ids = torch.LongTensor(koGPT2_TOKENIZER.encode(Q_TKN + q + SENT + A_TKN + a)).unsqueeze(dim=0)
+                    input_ids = input_ids.to(device)
+                    pred = model(input_ids)
+                    pred = pred.logits
+                    gen = koGPT2_TOKENIZER.convert_ids_to_tokens(torch.argmax(pred, dim=-1).to('cpu').squeeze().numpy().tolist())[-1]
+                    if gen == EOS:
+                        break
+                    a += gen.replace("▁", " ")
+                
+                print("User > {}".format(q))
+                print("Chatbot > {}".format(a.replace('<pad>', '').strip()))
+
+            answer = a.replace('<pad>', '').strip()
+
             form = AnswerForm()
             answer_form = form.save(commit=False)
             answer_form.content = answer
             answer_form.create_date = timezone.now()
             answer_form.question_id = request.user.id
             answer_form.save()
+
+            
             
             return JsonResponse({'message': answer})
             # return JsonResponse({'message': 'Message received successfully!'})
