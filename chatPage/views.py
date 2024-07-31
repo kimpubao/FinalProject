@@ -7,7 +7,7 @@ import pandas as pd
 from common.forms import UserForm
 from django.utils import timezone
 from .forms import AnswerForm, QuestionForm
-from .models import Answer, Question
+from .models import Answer, Document, Question
 from django.http import HttpResponse, JsonResponse
 import json
 from django.db.models import Q
@@ -22,6 +22,32 @@ from numpy.linalg import norm
 import os
 import torch
 from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel
+from .forms import DocumentForm
+
+
+Q_TKN = "<usr>"
+A_TKN = "<sys>"
+BOS = '</s>'
+EOS = '</s>'
+MASK = '<unused0>'
+SENT = '<unused1>'
+PAD = '<pad>'
+
+device = torch.device('cuda:0')
+
+koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
+            bos_token=BOS, eos_token=EOS, unk_token='<unk>',
+            pad_token=PAD, mask_token=MASK) 
+model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
+
+model_path = "chatbot_model_185457.pth" 
+model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
+checkpoint = torch.load(model_path)
+model.load_state_dict(checkpoint["model_state_dict"])
+model.eval()
+model.to(device)
+
+
 
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
@@ -71,37 +97,70 @@ def signup(request):
 def userchat(request):
     if request.method == 'POST':
         device = torch.device('cuda:0')
-        data = json.loads(request.body)
-        content = data.get('content')
-        author_id = data.get('author')
+        # data = json.loads(request.body)
+        # content = data.get('content')
+        # author_id = data.get('author')
+        content = request.POST.get('content')
+        author_id = request.POST.get('author')
+        upload = request.FILES.get('upload')
+        print('upload', upload)
+
+        if upload:
+            if upload.name.endswith('.txt'):
+                document = Document(upload=upload)
+                document.save()
+                file_content = upload.read().decode('utf-8')
+                print(file_content)
+                
+                answer = '네 요약해드리겠습니다.'
+
+                form = AnswerForm()
+                answer_form = form.save(commit=False)
+                answer_form.content = answer
+                answer_form.create_date = timezone.now()
+                answer_form.question_id = request.user.id
+                answer_form.save()
+
+                return JsonResponse({'message': answer}) # 여기서 요약 모델을 적용하면 됨
+            
+            answer = 'txt확장자의 파일만 요약할 수 있습니다.'
+
+            form = AnswerForm()
+            answer_form = form.save(commit=False)
+            answer_form.content = answer
+            answer_form.create_date = timezone.now()
+            answer_form.question_id = request.user.id
+            answer_form.save()
+            
+            return JsonResponse({'message': answer})
 
         if content and author_id:
-            form = QuestionForm(data)
+            form = QuestionForm({'content': content, 'author': author_id})
             if form.is_valid():
                 user = form.save(commit=False)
                 user.create_date = timezone.now()
                 user.author_id = author_id
                 user.save()
+                
+            # Q_TKN = "<usr>"
+            # A_TKN = "<sys>"
+            # BOS = '</s>'
+            # EOS = '</s>'
+            # MASK = '<unused0>'
+            # SENT = '<unused1>'
+            # PAD = '<pad>'
 
-            Q_TKN = "<usr>"
-            A_TKN = "<sys>"
-            BOS = '</s>'
-            EOS = '</s>'
-            MASK = '<unused0>'
-            SENT = '<unused1>'
-            PAD = '<pad>'
+            # koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
+            #             bos_token=BOS, eos_token=EOS, unk_token='<unk>',
+            #             pad_token=PAD, mask_token=MASK) 
+            # model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
 
-            koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
-                        bos_token=BOS, eos_token=EOS, unk_token='<unk>',
-                        pad_token=PAD, mask_token=MASK) 
-            model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
-
-            model_path = "chatbot_model_497373.pth" 
-            model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
-            checkpoint = torch.load(model_path)
-            model.load_state_dict(checkpoint["model_state_dict"])
-            model.eval()
-            model.to(device)
+            # model_path = "chatbot_model_185457.pth" 
+            # model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
+            # checkpoint = torch.load(model_path)
+            # model.load_state_dict(checkpoint["model_state_dict"])
+            # model.eval()
+            # model.to(device)
 
             with torch.no_grad():
                 q = content.strip()
@@ -128,10 +187,8 @@ def userchat(request):
             answer_form.question_id = request.user.id
             answer_form.save()
 
-            
-            
             return JsonResponse({'message': answer})
-            # return JsonResponse({'message': 'Message received successfully!'})
+    
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
@@ -151,6 +208,22 @@ def mike(request):
 
         return JsonResponse({'transcribed_text': transcribed_text})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'upload'})
+    else:
+        form = DocumentForm()
+    return render(request, 'upload.html', {'form': form})
+
+# def upload_success(request):
+#     return HttpResponse("File uploaded successfully.")
+
+
 
 def mypage(request):
     return render(request, 'chatPage/mypage.html')

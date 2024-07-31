@@ -13,5 +13,5 @@ urlpatterns = [
     path('delete_account/', views.delete_account, name='delete_account'),
     path('change_password/', views.change_password, name='change_password'),
     path('chat_export/', views.chat_export, name='chat_export'),
-
+    path('upload/', views.upload_file, name='upload_file'),
 ]

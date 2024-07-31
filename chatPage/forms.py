@@ -1,5 +1,6 @@
 from django import forms
 from .models import Answer, Question
+from .models import Document
 
 class QuestionForm(forms.ModelForm):
     class Meta:
@@ -16,3 +17,8 @@ class AnswerForm(forms.ModelForm):
         labels = {
             'content': '답변내용',
         }
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ('upload',)

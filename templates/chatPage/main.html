@@ -528,6 +528,12 @@
                     <div class="input-area">
                         <textarea id="user-input" name="content" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)"></textarea>
                         <input type="hidden" name="author" value="{{ user.id }}">
+
+                        <input type="file" id="file-input" name="upload" style="display: none;" accept=".txt" onchange="handleFileChange(event)">
+                        <button id="file-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="triggerFileInput(event)">
+                            <img src="https://png.pngtree.com/png-vector/20190628/ourmid/pngtree-document-icon-for-your-project-png-image_1520484.jpg" alt="텍스트요약" width="30px" height="30px">
+                        </button>
+                        
                         <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)">
                             <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004" alt="음성입력" width="30px" height="30px">
                         </button>
@@ -546,6 +552,16 @@
         </div>
     </div>
     <script>
+
+        function handleFileChange(event) {
+            document.getElementById('user-input').innerText = event.target.files[0].name;
+        }
+
+        function triggerFileInput(event) {
+            event.preventDefault();
+            document.getElementById('file-input').click();
+        }
+
         // 페이지 로드 시 설정된 다크 모드 상태를 적용하고, 클릭된 뉴스 링크 상태를 복원
         document.addEventListener('DOMContentLoaded', () => {
             const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -590,13 +606,23 @@
             }
         }
 
+
         // 메시지를 전송하는 함수
         async function sendMessage(event) {
             event.preventDefault();
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const recommendationLog = document.getElementById('recommendation-log');
+            const fileInput= document.getElementById('file-input');
             const userMessage = input.value.trim();
+            
+            const formData = new FormData();
+            formData.append('content', userMessage);
+            formData.append('author', '{{ user.id }}');
+
+            if (fileInput.files.length > 0) {
+                formData.append('upload', fileInput.files[0]);
+            }
 
             if (userMessage !== '') {
                 // 사용자 메시지를 추가
@@ -609,13 +635,9 @@
                 const response = await fetch("{% url 'userchat' %}", {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}'
                     },
-                    body: JSON.stringify({
-                        content: userMessage,
-                        author: '{{ user.id }}'
-                    })
+                    body: formData 
                 });
 
                 if (response.ok) {
@@ -648,6 +670,9 @@
                 input.value = '';
                 input.style.height = '50px';
             }
+            // 파일 입력 내용 초기화
+            fileInput.value = '';
+            fileInput.files = '';
         }
 
         // 텍스트 입력 시 높이를 조정하는 함수
