@@ -18,9 +18,11 @@ from django.contrib.auth.models import User
 import datetime
 import os
 import torch
-from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel
+from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel, BartForConditionalGeneration
 from .forms import DocumentForm
 
+tokenizer = PreTrainedTokenizerFast.from_pretrained('digit82/kobart-summarization')
+summary_model = BartForConditionalGeneration.from_pretrained('digit82/kobart-summarization')
 
 Q_TKN = "<usr>"
 A_TKN = "<sys>"
@@ -120,10 +122,16 @@ def userchat(request):
 
                 answer = '네 요약해드리겠습니다. \n\n'
                 f = open(filename, 'r', encoding='utf-8')
-                data = f.read()
+                text = f.read()
+                
+                # 요약 모델 적용
+                raw_input_ids = tokenizer.encode(text)
+                input_ids = [tokenizer.bos_token_id] + raw_input_ids + [tokenizer.eos_token_id]
 
-                # 요약 알고리즘 혹은 모델이 필요함
-
+                summary_ids = summary_model.generate(torch.tensor([input_ids]),  num_beams=4,  max_length=512,  eos_token_id=1)
+                data = tokenizer.decode(summary_ids.squeeze().tolist(), skip_special_tokens=True)
+                
+                # 답변 내용
                 answer += data # data 대신 요약 내용이 들어가야 함
 
                 form = QuestionForm({'content': content, 'author': author_id})
