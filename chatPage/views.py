@@ -1,5 +1,5 @@
+from glob import glob
 import io
-import pickle
 import sqlite3
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -9,7 +9,6 @@ from django.utils import timezone
 from .forms import AnswerForm, QuestionForm
 from .models import Answer, Document, Question
 from django.http import HttpResponse, JsonResponse
-import json
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import speech_recognition as sr
@@ -17,8 +16,6 @@ import requests
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 import datetime
-from numpy import dot
-from numpy.linalg import norm
 import os
 import torch
 from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel
@@ -48,7 +45,6 @@ model.eval()
 model.to(device)
 
 
-
 def index(request):
     user_chat_list = Question.objects.order_by('create_date')
     user_chat_list = user_chat_list.filter(Q(author__id = request.user.id))
@@ -73,12 +69,15 @@ def index(request):
     context = {'context': chat_log, 'news': news_text}
     return render(request, 'chatPage/main.html', context)
 
+
 def loginPage(request):
     return render(request, 'chatPage/login.html')
+
 
 def logout_view(request):
     logout(request)
     return redirect('/')
+
 
 def signup(request):
     if request.method == "POST":
@@ -94,25 +93,44 @@ def signup(request):
         form = UserForm()
     return render(request, 'chatPage/signup.html', {'form': form})
 
+
 def userchat(request):
     if request.method == 'POST':
         device = torch.device('cuda:0')
-        # data = json.loads(request.body)
-        # content = data.get('content')
-        # author_id = data.get('author')
         content = request.POST.get('content')
         author_id = request.POST.get('author')
         upload = request.FILES.get('upload')
-        print('upload', upload)
+        # print('upload', upload)
 
         if upload:
             if upload.name.endswith('.txt'):
+                
                 document = Document(upload=upload)
                 document.save()
-                file_content = upload.read().decode('utf-8')
-                print(file_content)
+                text = upload.read().decode('utf-8')
+                lst = glob('documents\\*.txt')
+                filename = ''
+                ftime = 0
+                for i in lst:
+                    creation_time = os.path.getctime(i)
+                    if ftime < creation_time:
+                        ftime = creation_time
+                        filename = i
                 
-                answer = '네 요약해드리겠습니다.'
+
+                answer = '네 요약해드리겠습니다. \n\n'
+                f = open(filename, 'r', encoding='utf-8')
+                data = f.read()
+
+                # 요약 알고리즘 혹은 모델이 필요함
+
+                answer += data # data 대신 요약 내용이 들어가야 함
+
+                form = QuestionForm({'content': content, 'author': author_id})
+                user = form.save(commit=False)
+                user.create_date = timezone.now()
+                user.author_id = author_id
+                user.save()
 
                 form = AnswerForm()
                 answer_form = form.save(commit=False)
@@ -123,6 +141,8 @@ def userchat(request):
 
                 return JsonResponse({'message': answer}) # 여기서 요약 모델을 적용하면 됨
             
+            document = Document(upload=upload)
+            document.save()
             answer = 'txt확장자의 파일만 요약할 수 있습니다.'
 
             form = AnswerForm()
@@ -141,14 +161,6 @@ def userchat(request):
                 user.create_date = timezone.now()
                 user.author_id = author_id
                 user.save()
-                
-            # Q_TKN = "<usr>"
-            # A_TKN = "<sys>"
-            # BOS = '</s>'
-            # EOS = '</s>'
-            # MASK = '<unused0>'
-            # SENT = '<unused1>'
-            # PAD = '<pad>'
 
             # koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
             #             bos_token=BOS, eos_token=EOS, unk_token='<unk>',
@@ -220,13 +232,10 @@ def upload_file(request):
         form = DocumentForm()
     return render(request, 'upload.html', {'form': form})
 
-# def upload_success(request):
-#     return HttpResponse("File uploaded successfully.")
-
-
 
 def mypage(request):
     return render(request, 'chatPage/mypage.html')
+
 
 def delete_account(request):
     if request.method == 'POST':
@@ -236,7 +245,8 @@ def delete_account(request):
         conn.commit()
         conn.close()
         return redirect('/')
-    
+
+
 def change_password(request):
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
@@ -247,6 +257,7 @@ def change_password(request):
             login(request, user)
             return redirect('/')
         return JsonResponse({'error': 'password error'}, status=400)
+
 
 def chat_export(request):
     conn = sqlite3.connect('db.sqlite3')
