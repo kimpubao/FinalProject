@@ -89,3 +89,12 @@ Bert와 GPT를 이용한 영화추천 챗봇 개발
 pip install -r requirements.txt
 ```
 ---
+
+
+CPU 및 GPU 문제시
+chatPage 폴더
+>views.py 파일에서 
+> device = torch.device('cpu’)
+> device = torch.device('cuda:0')
+checkpoint = torch.load(model_path,map_location='cpu') # cpu 사용시
+heckpoint = torch.load(model_path) GPU 사용시 # gpu 사용시
