@@ -50,7 +50,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            margin: 0; /* 여백 제거 */
+            margin: 0;
         }
 
         .dark-mode .sidebar {
@@ -182,7 +182,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-end; /* 오른쪽 정렬 */
             overflow: hidden;
             padding: 20px;
         }
@@ -194,7 +194,8 @@
 
         /* 채팅 컨테이너 스타일 */
         .chat-container {
-            width: 80%;
+            width: 90%; /* 너비 조정 */
+            margin-left: 30px; /* 오른쪽으로 이동 */
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -348,17 +349,17 @@
 
         /* 뉴스 섹션 스타일 */
         .news {
-            width: 300px; /* 기본 너비 설정 */
+            width: 500px; /* 영화 뉴스 창의 너비를 늘림 */
             background-color: #202020;
             padding: 20px;
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #2a2a2a #1a1a1a;
-            margin: 0; /* 여백 제거 */
-            position: absolute; /* 위치 절대값 설정 */
-            right: 0; /* 오른쪽에 붙이기 */
-            top: 60px; /* 상단 네비게이션 바 높이만큼 아래로 */
-            bottom: 0; /* 하단에 붙이기 */
+            margin: 0;
+            position: absolute;
+            right: 0;
+            top: 60px;
+            bottom: 0;
             box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
@@ -412,7 +413,7 @@
 
         /* 클릭된 뉴스 링크 스타일 */
         .news a.clicked {
-            color: #ff6347; /* 클릭된 링크의 색상 */
+            color: #ff6347;
         }
 
         /* 미디어 쿼리: 작은 화면용 스타일 */
@@ -491,7 +492,7 @@
         /* 툴팁 스타일 */
         #file-button, #speech-button {
             position: relative;
-            transition: background-color 0.3s ease, transform 0.3s ease; /* 애니메이션 효과 추가 */
+            transition: background-color 0.3s ease, transform 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -500,18 +501,18 @@
         }
 
         #file-button:hover, #speech-button:hover {
-            background-color: #625f5f; /* 배경색 변경 */
-            transform: scale(1.1); /* 커지는 애니메이션 효과 */
+            background-color: #625f5f;
+            transform: scale(1.1);
         }
 
         #file-button:hover img, #speech-button:hover img {
-            transform: scale(1.1); /* 이미지 커지는 애니메이션 효과 */
+            transform: scale(1.1);
         }
 
         #file-button:hover::after, #speech-button:hover::after {
-            content: attr(data-tooltip); /* 툴팁 내용 설정 */
+            content: attr(data-tooltip);
             position: absolute;
-            top: -35px; /* 상단으로 이동 */
+            top: -35px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #202020;
@@ -520,10 +521,10 @@
             border-radius: 5px;
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.3s ease; /* 글자 크기 키우기 애니메이션 추가 */
+            transition: opacity 0.3s ease;
             pointer-events: none;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            font-size: 16px; /* 글자 크기 키우기 */
+            font-size: 16px;
         }
 
         #file-button:hover::after, #speech-button:hover::after {
@@ -629,6 +630,7 @@
 
             // 인사 문구 추가 (채팅 메시지가 있는지 확인 후 실행)
             const chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;  // 스크롤을 하단으로 이동
             if (chatBox.children.length === 1) {
                 typeGreetingMessage();
             } else {
