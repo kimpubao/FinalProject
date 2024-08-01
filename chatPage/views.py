@@ -32,7 +32,8 @@ MASK = '<unused0>'
 SENT = '<unused1>'
 PAD = '<pad>'
 
-device = torch.device('cuda:0')
+# device = torch.device('cuda:0')
+device = torch.device('cpu')
 
 koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
             bos_token=BOS, eos_token=EOS, unk_token='<unk>',
@@ -41,7 +42,7 @@ model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
 
 model_path = "chatbot_model_185457.pth" 
 model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
-checkpoint = torch.load(model_path)
+checkpoint = torch.load(model_path, map_location='cpu')
 model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()
 model.to(device)
@@ -98,7 +99,8 @@ def signup(request):
 
 def userchat(request):
     if request.method == 'POST':
-        device = torch.device('cuda:0')
+        # device = torch.device('cuda:0')
+        device = torch.device('cpu')
         content = request.POST.get('content')
         author_id = request.POST.get('author')
         upload = request.FILES.get('upload')
