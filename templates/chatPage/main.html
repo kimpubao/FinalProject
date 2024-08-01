@@ -8,7 +8,7 @@
     <title>Soul Movie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="anonymous">
     <style>
-        /* 스타일 정의 */
+        /* 기존 스타일 정의 */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         
         /* 기본 레이아웃 */
@@ -487,6 +487,53 @@
                 opacity: 1;
             }
         }
+
+        /* 툴팁 스타일 */
+        #file-button, #speech-button {
+            position: relative;
+            transition: background-color 0.3s ease, transform 0.3s ease; /* 애니메이션 효과 추가 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            background-color: white;
+        }
+
+        #file-button:hover, #speech-button:hover {
+            background-color: #625f5f; /* 배경색 변경 */
+            transform: scale(1.1); /* 커지는 애니메이션 효과 */
+        }
+
+        #file-button:hover img, #speech-button:hover img {
+            transform: scale(1.1); /* 이미지 커지는 애니메이션 효과 */
+        }
+
+        #file-button:hover::after, #speech-button:hover::after {
+            content: attr(data-tooltip); /* 툴팁 내용 설정 */
+            position: absolute;
+            top: -35px; /* 상단으로 이동 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #202020;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease; /* 글자 크기 키우기 애니메이션 추가 */
+            pointer-events: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 16px; /* 글자 크기 키우기 */
+        }
+
+        #file-button:hover::after, #speech-button:hover::after {
+            opacity: 1;
+        }
+
+        .dark-mode #file-button:hover::after, .dark-mode #speech-button:hover::after {
+            background-color: #e0e0e0;
+            color: #1a1a1a;
+        }
     </style>
 </head>
 <body>
@@ -530,11 +577,11 @@
                         <input type="hidden" name="author" value="{{ user.id }}">
 
                         <input type="file" id="file-input" name="upload" style="display: none;" accept=".txt" onchange="handleFileChange(event)">
-                        <button id="file-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="triggerFileInput(event)">
+                        <button id="file-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="triggerFileInput(event)" data-tooltip="텍스트 파일 업로드">
                             <img src="https://png.pngtree.com/png-vector/20190628/ourmid/pngtree-document-icon-for-your-project-png-image_1520484.jpg" alt="텍스트요약" width="30px" height="30px">
                         </button>
                         
-                        <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)">
+                        <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)" data-tooltip="음성 입력">
                             <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004" alt="음성입력" width="30px" height="30px">
                         </button>
                         <button type="submit" onclick="sendMessage(event)">전송</button>
@@ -552,7 +599,6 @@
         </div>
     </div>
     <script>
-
         function handleFileChange(event) {
             document.getElementById('user-input').innerText = event.target.files[0].name;
         }
@@ -581,8 +627,14 @@
             // 음성 버튼 상태 설정
             toggleSpeechButtonVisibility();
 
-            // 인사 문구 추가
-            typeGreetingMessage();
+            // 인사 문구 추가 (채팅 메시지가 있는지 확인 후 실행)
+            const chatBox = document.getElementById('chat-box');
+            if (chatBox.children.length === 1) {
+                typeGreetingMessage();
+            } else {
+                const greetingText = "안녕하세요. 무엇을 도와드릴까요?";
+                document.getElementById('greeting-text').textContent = greetingText;
+            }
         });
 
         // 다크 모드를 토글하는 함수
@@ -605,7 +657,6 @@
                 toggleButton.setAttribute('data-tooltip', '사이드바 닫기');
             }
         }
-
 
         // 메시지를 전송하는 함수
         async function sendMessage(event) {
