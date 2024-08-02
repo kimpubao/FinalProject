@@ -244,6 +244,84 @@
         </div>
         <!-- 회원 탈퇴 섹션 -->
         <div class="section home-button">
+            <h2>입력 수정</h2><h6>현재 {{genre}}</h6>
+            <form method="POST" action="{% url 'change_genre' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="checkbox" name='genre' id='genre_action' value="액션" {% if '액션' in form.genre.value %}checked{% endif %}>액션</input>
+                    <input type="checkbox" name='genre' id='genre_western' value="서부극(웨스턴)" {% if '서부극(웨스턴)' in form.genre.value %}checked{% endif %}>서부극</input>
+                    <input type="checkbox" name='genre' id='genre_animation' value="애니메이션" {% if '애니메이션' in form.genre.value %}checked{% endif %}>애니메이션</input>
+                    <input type="checkbox" name='genre' id='genre_martial' value="무협" {% if '무협' in form.genre.value %}checked{% endif %}>무협</input>
+                    <input type="checkbox" name='genre' id='genre_fantasy' value="판타지" {% if '판타지' in form.genre.value %}checked{% endif %}>판타지</input>
+                    <input type="checkbox" name='genre' id='genre_adventure' value="어드벤처" {% if '어드벤처' in form.genre.value %}checked{% endif %}>어드벤처</input>
+                    <input type="checkbox" name='genre' id='genre_crime' value="범죄" {% if '범죄' in form.genre.value %}checked{% endif %}>범죄</input>
+                    <input type="checkbox" name='genre' id='genre_thriller' value="스릴러" {% if '스릴러' in form.genre.value %}checked{% endif %}>스릴러</input>
+                    <input type="checkbox" name='genre' id='genre_melodrama' value="멜로/로맨스" {% if '멜로/로맨스' in form.genre.value %}checked{% endif %}>멜로/로맨스</input>
+                    <input type="checkbox" name='genre' id='genre_mystery' value="추리" {% if '추리' in form.genre.value %}checked{% endif %}>추리</input>
+                    <input type="checkbox" name='genre' id='genre_comedy' value="코미디" {% if '코미디' in form.genre.value %}checked{% endif %}>코미디</input>
+                    <input type="checkbox" name='genre' id='genre_mystery' value="미스터리" {% if '미스터리' in form.genre.value %}checked{% endif %}>미스터리</input>
+                    <input type="checkbox" name='genre' id='genre_historical' value="사극" {% if '사극' in form.genre.value %}checked{% endif %}>사극</input>
+                    <input type="checkbox" name='genre' id='genre_period' value="시대극" {% if '시대극' in form.genre.value %}checked{% endif %}>시대극</input>
+                    <input type="checkbox" name='genre' id='genre_horror' value="공포(호러)" {% if '공포(호러)' in form.genre.value %}checked{% endif %}>공포(호러)</input>
+                    <input type="checkbox" name='genre' id='genre_investigation' value="수사" {% if '수사' in form.genre.value %}checked{% endif %}>수사</input>
+                    <input type="checkbox" name='genre' id='genre_drama' value="드라마" {% if '드라마' in form.genre.value %}checked{% endif %}>드라마</input>
+                    <input type="checkbox" name='genre' id='genre_documentary' value="다큐멘터리" {% if '다큐멘터리' in form.genre.value %}checked{% endif %}>다큐멘터리</input>
+                    <input type="checkbox" name='genre' id='genre_etc' value="기타" {% if '기타' in form.genre.value %}checked{% endif %}>기타</input>
+                    <input type="checkbox" name='genre' id='genre_sf' value="SF" {% if 'SF' in form.genre.value %}checked{% endif %}>SF</input>
+                </div>
+                <button type="submit">수정</button>
+            </form>
+        </div>
+        <div class="horizontal-sections">
+            <div class="section">
+                <form method="POST" action="{% url 'change_gender' %}">
+                    {% csrf_token %}
+                    <h2>성별 선택</h2>
+                    {% if gender == 'M' %}
+                        <h6>현재 남성</h6>
+                    {% elif gender == 'F' %}
+                        <h6>현재 여성</h6>
+                    {% else %}
+                        <h6>현재 미선택</h6>
+                    {% endif %}
+                    <select class="form-control" name="gender" id="gender">
+                        <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                        <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
+                        <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
+                    </select>
+                    <button type="submit">수정</button>
+                </form>
+            </div>
+            <div class="section">
+                <form method="POST" action="{% url 'change_age_group' %}">
+                    {% csrf_token %}
+                    <h2>연령대 선택</h2>
+                    현재
+                    {% if 60 > age %}
+                        {% if age > 10 %}
+                            {{age}}대
+                        {% else %}
+                            10대
+                        {% endif %}
+                    {% elif age == 60 %}
+                        60대 이상
+                    {% else %}
+                        미선택
+                    {% endif %}
+                    <select class="form-control" name="age_group" id="age_group">
+                            <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                            <option value="10" {% if form.gender.value == '10' %}selected{% endif %}>10대 이하</option>
+                            <option value="20" {% if form.gender.value == '20' %}selected{% endif %}>20대</option>
+                            <option value="30" {% if form.gender.value == '30' %}selected{% endif %}>30대</option>
+                            <option value="40" {% if form.gender.value == '40' %}selected{% endif %}>40대</option>
+                            <option value="50" {% if form.gender.value == '50' %}selected{% endif %}>50대</option>
+                            <option value="60" {% if form.gender.value == '60' %}selected{% endif %}>60대 이상</option>
+                        </select>
+                    <button type="submit">수정</button>
+                </form>
+            </div>
+        </div>
+        <div class="section home-button">
             <h2>회원 탈퇴</h2>
             <!-- 회원 탈퇴 폼 -->
             <form method="POST" action="{% url 'delete_account' %}" onsubmit="return confirmDelete()">

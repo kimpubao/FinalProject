@@ -14,4 +14,7 @@ urlpatterns = [
     path('change_password/', views.change_password, name='change_password'),
     path('chat_export/', views.chat_export, name='chat_export'),
     path('upload/', views.upload_file, name='upload_file'),
+    path('change_gender/', views.change_gender, name='change_gender'),
+    path('change_genre/', views.change_genre, name='change_genre'),
+    path('change_age_group/', views.change_age_group, name='change_age_group'),
 ]

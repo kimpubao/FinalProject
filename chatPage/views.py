@@ -20,6 +20,7 @@ import os
 import torch
 from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel, BartForConditionalGeneration
 from .forms import DocumentForm
+from django.contrib.auth import get_user_model
 
 tokenizer = PreTrainedTokenizerFast.from_pretrained('digit82/kobart-summarization')
 summary_model = BartForConditionalGeneration.from_pretrained('digit82/kobart-summarization')
@@ -115,11 +116,9 @@ def userchat(request):
         content = request.POST.get('content')
         author_id = request.POST.get('author')
         upload = request.FILES.get('upload')
-        # print('upload', upload)
 
         if upload:
             if upload.name.endswith('.txt'):
-                
                 document = Document(upload=upload)
                 document.save()
                 text = upload.read().decode('utf-8')
@@ -131,7 +130,6 @@ def userchat(request):
                     if ftime < creation_time:
                         ftime = creation_time
                         filename = i
-                
 
                 answer = '네 요약해드리겠습니다. \n\n'
                 f = open(filename, 'r', encoding='utf-8')
@@ -256,7 +254,14 @@ def upload_file(request):
 ########## 마이페이지 기능 ##########
 
 def mypage(request):
-    return render(request, 'chatPage/mypage.html')
+    if request.user.is_authenticated:
+        UserData = get_user_model() # 기존 유저 클래스
+        user = UserData.objects.get(id = request.user.id)
+        age_group = user.age_group
+        gender = user.gender
+        genres = user.genre
+        user_data = {"age": age_group, "gender": gender, "genre": genres}
+    return render(request, 'chatPage/mypage.html', user_data)
 
 
 def delete_account(request):
@@ -272,7 +277,8 @@ def delete_account(request):
 def change_password(request):
     if request.method == 'POST':
         if request.POST.get('password1') == request.POST.get('password2'):
-            user = User.objects.get(username = request.user)
+            UserData = get_user_model() # 기존 유저 클래스
+            user = UserData.objects.get(username = request.user)
             user.set_password(request.POST.get('password2'))
             user.save()
             user = authenticate(username=request.user, password=request.POST.get('password2'))
@@ -308,3 +314,34 @@ def chat_export(request):
     response['Content-Disposition'] = f'attachment; filename=chat_log{now_time}.txt'
     return response
 
+
+def change_gender(request):
+    if request.method == 'POST':
+        UserData = get_user_model() # 기존 유저 클래스
+        user = UserData.objects.get(username = request.user)
+        user.gender = request.POST.get('gender')
+        user.save()
+        return redirect('/')
+    
+
+def change_genre(request):
+    if request.method == 'POST':
+        UserData = get_user_model() # 기존 유저 클래스
+        user = UserData.objects.get(username = request.user)
+        user.genre = request.POST.getlist('genre')
+        user.save()
+        return redirect('/')
+
+
+def change_age_group(request):
+    if request.method == 'POST':
+        UserData = get_user_model() # 기존 유저 클래스
+        user = UserData.objects.get(username = request.user)
+        try:
+            age = int(request.POST.get('age_group'))
+        except:
+            age = None
+        user.age_group = age
+        print('data',type(request.POST.get('age_group')), user.age_group)
+        user.save()
+        return redirect('/')
