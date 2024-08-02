@@ -89,6 +89,17 @@ def signup(request):
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
+            # 장르는 리스트 저장이 안되므로 따로 업데이트
+            genres = request.POST.getlist('genre')
+            genres_str = ','.join(genres)
+            conn = sqlite3.connect('db.sqlite3')
+            cursor = conn.cursor()
+            query = """update chatPage_user set genre = ? where username = ?"""
+            data = (genres_str, username)
+            cursor.execute(query, data)
+            conn.commit()
+            cursor.close()
+            conn.close()
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('/')
