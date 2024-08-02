@@ -198,6 +198,18 @@
             return confirm('정말 회원 탈퇴 하시겠습니까?');
         }
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("input[type='checkbox']").on('click', function(){
+                let count = $("input:checked[type='checkbox']").length;
+                if(count > 3){
+                    $(this).prop("checked", false);
+                    alert("3개까지만 선택할 수 있습니다.");
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
