@@ -246,12 +246,14 @@
             margin-bottom: 10px;
             opacity: 1;
             transition: opacity 0.5s ease;
+            align-items: center;
         }
 
         .message.user .text {
             background-color: #f8c582;
             margin-left: auto;
             color: #1a1a1a;
+            position: relative;
         }
 
         .message.bot .text {
@@ -276,6 +278,20 @@
             max-width: 60%;
             word-wrap: break-word;
             white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .delete-icon {
+            margin-left: 10px;
+            cursor: pointer;
+            color: #ff0000;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .delete-icon:hover {
+            color: #cc0000;
         }
 
         /* 입력 영역 스타일 */
@@ -349,7 +365,7 @@
 
         /* 뉴스 섹션 스타일 */
         .news {
-            width: 500px; /* 영화 뉴스 창의 너비를 늘림 */
+            width: 350px; /* 영화 뉴스 창의 너비를 늘림 */
             background-color: #202020;
             padding: 20px;
             overflow-y: auto;
@@ -601,7 +617,24 @@
     </div>
     <script>
         function handleFileChange(event) {
-            document.getElementById('user-input').innerText = event.target.files[0].name;
+            const chatBox = document.getElementById('chat-box');
+            const fileName = event.target.files[0].name;
+
+            // 파일 업로드 말풍선 추가
+            const fileMessageDiv = document.createElement('div');
+            fileMessageDiv.className = 'message user';
+            fileMessageDiv.innerHTML = `<div class="text"><i class="fas fa-file-alt"></i> ${fileName}<span class="delete-icon" onclick="deleteMessage(this)">&times;</span></div>`;
+            chatBox.appendChild(fileMessageDiv);
+
+            // 파일이 업로드되었음을 사용자에게 알리기 위해 입력 창 초기화
+            document.getElementById('user-input').innerText = '';
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function deleteMessage(deleteIcon) {
+            const messageDiv = deleteIcon.closest('.message');
+            messageDiv.remove();
         }
 
         function triggerFileInput(event) {
