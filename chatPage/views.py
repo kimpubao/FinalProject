@@ -253,6 +253,7 @@ def upload_file(request):
         form = DocumentForm()
     return render(request, 'upload.html', {'form': form})
 
+########## 마이페이지 기능 ##########
 
 def mypage(request):
     return render(request, 'chatPage/mypage.html')
@@ -284,14 +285,26 @@ def chat_export(request):
     conn = sqlite3.connect('db.sqlite3')
     cursor = conn.cursor()
     cursor.execute("SELECT content, create_date FROM chatPage_question WHERE author_id = ?", (request.user.id,))
-    chat_log = cursor.fetchall()
-    print('test')
+    user_chat_log = cursor.fetchall()
+    cursor.execute("SELECT content, create_date FROM chatPage_answer WHERE question_id = ?", (request.user.id,))
+    bot_chat_log = cursor.fetchall()
     output = io.StringIO()
-    for content, create_date in chat_log: # 텍스트 파일 작성
-        output.write(f"[{create_date}]: {content}\n")
+    log = [] # 해당 유저 채팅 기록 전체 리스트
+
+    for content, create_date in user_chat_log:
+        log.append((create_date, 'user:', content))
+
+    for content, create_date in bot_chat_log:
+        log.append((create_date, 'bot:', content))
+
+    log.sort(key=lambda x:x[0]) # 시간 기준 정렬
+
+    for create_date, author, content in log:  # 텍스트 파일 작성
+        output.write(f"[{create_date}] [{author}] {content}\n")
 
     # 텍스트 파일을 HTTP 응답으로 반환
     response = HttpResponse(output.getvalue(), content_type='text/plain')
     now_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     response['Content-Disposition'] = f'attachment; filename=chat_log{now_time}.txt'
     return response
+
