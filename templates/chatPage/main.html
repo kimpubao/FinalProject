@@ -2,15 +2,17 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Movie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="anonymous">
     <style>
         /* 기존 스타일 정의 */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-        
+
         /* 기본 레이아웃 */
         body {
             background-color: #1a1a1a;
@@ -182,7 +184,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: flex-end; /* 오른쪽 정렬 */
+            align-items: flex-end;
+            /* 오른쪽 정렬 */
             overflow: hidden;
             padding: 20px;
         }
@@ -194,8 +197,10 @@
 
         /* 채팅 컨테이너 스타일 */
         .chat-container {
-            width: 90%; /* 너비 조정 */
-            margin-left: 30px; /* 오른쪽으로 이동 */
+            width: 90%;
+            /* 너비 조정 */
+            margin-left: 30px;
+            /* 오른쪽으로 이동 */
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -365,7 +370,8 @@
 
         /* 뉴스 섹션 스타일 */
         .news {
-            width: 350px; /* 영화 뉴스 창의 너비를 늘림 */
+            width: 350px;
+            /* 영화 뉴스 창의 너비를 늘림 */
             background-color: #202020;
             padding: 20px;
             overflow-y: auto;
@@ -500,13 +506,15 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
         }
 
         /* 툴팁 스타일 */
-        #file-button, #speech-button {
+        #file-button,
+        #speech-button {
             position: relative;
             transition: background-color 0.3s ease, transform 0.3s ease;
             display: flex;
@@ -516,16 +524,19 @@
             background-color: white;
         }
 
-        #file-button:hover, #speech-button:hover {
+        #file-button:hover,
+        #speech-button:hover {
             background-color: #625f5f;
             transform: scale(1.1);
         }
 
-        #file-button:hover img, #speech-button:hover img {
+        #file-button:hover img,
+        #speech-button:hover img {
             transform: scale(1.1);
         }
 
-        #file-button:hover::after, #speech-button:hover::after {
+        #file-button:hover::after,
+        #speech-button:hover::after {
             content: attr(data-tooltip);
             position: absolute;
             top: -35px;
@@ -543,16 +554,19 @@
             font-size: 16px;
         }
 
-        #file-button:hover::after, #speech-button:hover::after {
+        #file-button:hover::after,
+        #speech-button:hover::after {
             opacity: 1;
         }
 
-        .dark-mode #file-button:hover::after, .dark-mode #speech-button:hover::after {
+        .dark-mode #file-button:hover::after,
+        .dark-mode #speech-button:hover::after {
             background-color: #e0e0e0;
             color: #1a1a1a;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- 사이드바 -->
@@ -563,7 +577,8 @@
                 <div id="recommendation-log"></div>
             </div>
             {% if user.is_authenticated %}
-            <button class="mypage-button" data-href="{% url 'mypage' %}" onclick="window.location.href=this.getAttribute('data-href')">My Page</button>
+            <button class="mypage-button" data-href="{% url 'mypage' %}"
+                onclick="window.location.href=this.getAttribute('data-href')">My Page</button>
             {% endif %}
         </div>
 
@@ -576,42 +591,48 @@
                         <div class="text" id="greeting-text"></div>
                     </div>
                     {% for i in context %}
-                        {% if i.0 == 'user' %}
-                        <div class="message user">
-                            <div class="text">{{ i.1 }}</div>
-                        </div>
-                        {% else %}
-                        <div class="message bot">
-                            <div class="text">{{ i.1 }}</div>
-                        </div>
-                        {% endif %}
+                    {% if i.0 == 'user' %}
+                    <div class="message user">
+                        <div class="text">{{ i.1 }}</div>
+                    </div>
+                    {% else %}
+                    <div class="message bot">
+                        <div class="text">{{ i.1 }}</div>
+                    </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 <form class="search-form" id="userchat" method="POST" action="{% url 'userchat' %}">
                     {% csrf_token %}
                     <div class="input-area">
-                        <textarea id="user-input" name="content" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)"></textarea>
+                        <textarea id="user-input" name="content" placeholder="메시지 입력..."
+                            onkeypress="handleKeyPress(event)"></textarea>
                         <input type="hidden" name="author" value="{{ user.id }}">
 
-                        <input type="file" id="file-input" name="upload" style="display: none;" accept=".txt" onchange="handleFileChange(event)">
-                        <button id="file-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="triggerFileInput(event)" data-tooltip="텍스트 파일 업로드">
-                            <img src="https://png.pngtree.com/png-vector/20190628/ourmid/pngtree-document-icon-for-your-project-png-image_1520484.jpg" alt="텍스트요약" width="30px" height="30px">
+                        <input type="file" id="file-input" name="upload" style="display: none;" accept=".txt"
+                            onchange="handleFileChange(event)">
+                        <button id="file-button" style="width: 50px; background-color: white; margin-right: 10px;"
+                            onclick="triggerFileInput(event)" data-tooltip="텍스트 파일 업로드">
+                            <img src="https://png.pngtree.com/png-vector/20190628/ourmid/pngtree-document-icon-for-your-project-png-image_1520484.jpg"
+                                alt="텍스트요약" width="30px" height="30px">
                         </button>
-                        
-                        <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;" onclick="inputMike(event)" data-tooltip="음성 입력">
-                            <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004" alt="음성입력" width="30px" height="30px">
+
+                        <button id="speech-button" style="width: 50px; background-color: white; margin-right: 10px;"
+                            onclick="inputMike(event)" data-tooltip="음성 입력">
+                            <img src="https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13073475&filePath=L2Rpc2sxL25ld2RhdGEvMjAxOC85OC9DTFMyLzEzMDczNDc1X0NOVFJfV1JUMjAxODA0MjZfMzAy&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10004"
+                                alt="음성입력" width="30px" height="30px">
                         </button>
                         <button type="submit" onclick="sendMessage(event)">전송</button>
                     </div>
                 </form>
             </div>
         </div>
-        
+
         <!-- 뉴스 섹션 -->
         <div class="news">
             <div class="news-header">영화 뉴스</div>
             {% for n in news %}
-                <p><a href="{{n.0}}" class="news-link">{{n.1}}</a></p>
+            <p><a href="{{n.0}}" class="news-link">{{n.1}}</a></p>
             {% endfor %}
         </div>
     </div>
@@ -635,6 +656,10 @@
         function deleteMessage(deleteIcon) {
             const messageDiv = deleteIcon.closest('.message');
             messageDiv.remove();
+
+            // 파일 입력 초기화
+            const fileInput = document.getElementById('file-input');
+            fileInput.value = '';
         }
 
         function triggerFileInput(event) {
@@ -663,7 +688,7 @@
 
             // 인사 문구 추가 (채팅 메시지가 있는지 확인 후 실행)
             const chatBox = document.getElementById('chat-box');
-            chatBox.scrollTop = chatBox.scrollHeight;  // 스크롤을 하단으로 이동
+            chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 하단으로 이동
             if (chatBox.children.length === 1) {
                 typeGreetingMessage();
             } else {
@@ -699,9 +724,9 @@
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const recommendationLog = document.getElementById('recommendation-log');
-            const fileInput= document.getElementById('file-input');
+            const fileInput = document.getElementById('file-input');
             const userMessage = input.value.trim();
-            
+
             const formData = new FormData();
             formData.append('content', userMessage);
             formData.append('author', '{{ user.id }}');
@@ -723,7 +748,7 @@
                     headers: {
                         'X-CSRFToken': '{{ csrf_token }}'
                     },
-                    body: formData 
+                    body: formData
                 });
 
                 if (response.ok) {
@@ -790,8 +815,8 @@
             const recognition = new webkitSpeechRecognition();
             recognition.lang = 'ko-KR';
             recognition.start();
-            
-            recognition.onresult = function(event) {
+
+            recognition.onresult = function (event) {
                 const speechResult = event.results[0][0].transcript;
 
                 fetch("{% url 'mike' %}", {
@@ -802,18 +827,18 @@
                     },
                     body: JSON.stringify({ speech: speechResult })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("user-input").value = data.transcribed_text;
-                    messageArea.innerText = "";
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    messageArea.innerText = "(오류가 발생했습니다)";
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("user-input").value = data.transcribed_text;
+                        messageArea.innerText = "";
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        messageArea.innerText = "(오류가 발생했습니다)";
+                    });
             };
 
-            recognition.onerror = function(event) {
+            recognition.onerror = function (event) {
                 console.error("Speech recognition error:", event.error);
                 messageArea.innerText = "(음성 인식 오류가 발생했습니다)";
             };
@@ -834,7 +859,7 @@
 
         // MyPage에서 메시지를 수신하여 음성 버튼을 즉각적으로 토글
         window.addEventListener('message', (event) => {
-            if (event.data.action === 'toggleSpeechButton') {
+            if (event.data.action === 'toggle') {
                 const speechButton = document.getElementById('speech-button');
                 if (speechButton.style.display === 'none') {
                     speechButton.style.display = 'block';
@@ -879,5 +904,6 @@
         }
     </script>
 </body>
+
 </html>
 {% endblock %}
