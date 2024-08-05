@@ -3,6 +3,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,15 +25,24 @@
 
         /* 메인 컨테이너 스타일 */
         .container {
-            width: 80%;
-            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
             margin: 50px auto;
+        }
+
+        /* 섹션 그룹 스타일 */
+        .info-group,
+        .settings-group {
+            width: 48%;
         }
 
         /* 섹션 스타일 */
         .section {
             padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: #333;
             color: #fff;
             border-radius: 10px;
@@ -54,8 +64,10 @@
         }
 
         /* 입력, 버튼, 텍스트 영역 스타일 */
-        .section input[type="password"], .section button, .section textarea {
-            width: 100%;  /* 너비를 100%로 설정하여 버튼과 동일하게 만듭니다 */
+        .section input[type="password"],
+        .section select,
+        .section button {
+            width: 100%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #555;
@@ -67,14 +79,14 @@
         }
 
         /* 반전 모드 입력, 텍스트 영역 스타일 */
-        .dark-mode .section input[type="password"], 
-        .dark-mode .section textarea {
+        .dark-mode .section input[type="password"],
+        .dark-mode .section select {
             background: #fff;
             color: #000;
             border: 1px solid #ccc;
         }
 
-        /* 버튼 스타일 */
+        /* 일반 버튼 스타일 */
         .section button {
             background: #ff9800;
             color: #fff;
@@ -83,15 +95,22 @@
             border: none;
             font-size: 1em;
             padding: 12px;
-            margin-top: 10px;
             border-radius: 5px;
-            width: 100%;
-            box-sizing: border-box; /* 버튼에도 box-sizing 설정 */
         }
 
-        /* 버튼 호버 스타일 */
+        /* 일반 버튼 호버 스타일 */
         .section button:hover {
             background: #e67e22;
+        }
+
+        /* 회원 탈퇴 버튼 스타일 */
+        .delete-button {
+            background: #ff4c4c !important;
+        }
+
+        /* 회원 탈퇴 버튼 호버 스타일 */
+        .delete-button:hover {
+            background: #e60000 !important;
         }
 
         .hidden {
@@ -106,6 +125,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -132,14 +152,35 @@
             margin-top: 30px;
         }
 
-        /* 반전 모드 버튼 스타일 유지 */
-        .dark-mode .section button {
-            background: #ff9800;
+        /* 회원 탈퇴 섹션 상단 여백 추가 */
+        .member-delete {
+            margin-top: 20px;
+        }
+
+        /* 장르 목록 스타일 */
+        .genre-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .genre-item {
+            flex: 0 1 calc(33.33% - 10px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .genre-item label {
+            flex: 1;
+            text-align: left;
             color: #fff;
         }
 
-        .dark-mode .section button:hover {
-            background: #e67e22;
+        /* 반전 모드에서의 장르 목록 스타일 */
+        .dark-mode .genre-item label {
+            color: #000;
         }
     </style>
     <script>
@@ -200,10 +241,10 @@
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $("input[type='checkbox']").on('click', function(){
+        $(document).ready(function () {
+            $("input[type='checkbox']").on('click', function () {
                 let count = $("input:checked[type='checkbox']").length;
-                if(count > 3){
+                if (count > 3) {
                     $(this).prop("checked", false);
                     alert("3개까지만 선택할 수 있습니다.");
                 }
@@ -211,135 +252,201 @@
         });
     </script>
 </head>
+
 <body>
     <div class="container">
-        <!-- 비밀번호 설정 섹션 -->
-        <div class="section">
-            <h2>비밀번호 설정</h2>
-            <!-- 비밀번호 변경 폼 -->
-            <form method="POST" action="{% url 'change_password' %}">
-                {% csrf_token %}
-                <input type="password" name="password1" placeholder="새 비밀번호">
-                <input type="password" name="password2" placeholder="비밀번호 확인">
-                <button type="submit">비밀번호 변경</button>
-            </form>
-        </div>
-        <!-- 색상 반전 및 음성 인식 버튼 섹션 -->
-        <div class="horizontal-sections">
+        <!-- 회원 정보 섹션 -->
+        <div class="info-group">
+            <!-- 비밀번호 설정 섹션 -->
             <div class="section">
-                <h2>화면 색상 반전</h2>
-                <!-- 색상 반전 버튼 -->
-                <button onclick="toggleDarkMode()">색상 반전</button>
-            </div>
-            <div class="section">
-                <h2>음성 인식 버튼 숨기기 / 보이기</h2>
-                <!-- 음성 인식 버튼 숨기기/보이기 버튼 -->
-                <button id="toggle-speech-button" onclick="toggleSpeechButton()">음성 인식 버튼 숨기기 / 보이기</button>
-                <button id="speech-button" class="hidden">음성 인식</button>
-            </div>
-        </div>
-        <!-- 대화 기록 추출 및 홈 버튼 섹션 -->
-        <div class="horizontal-sections chat-extraction">
-            <div class="section">
-                <h2>대화 기록 추출</h2>
-                <!-- 대화 기록 추출 폼 -->
-                <form method="POST" action="{% url 'chat_export' %}">
+                <h2>비밀번호 설정</h2>
+                <form method="POST" action="{% url 'change_password' %}">
                     {% csrf_token %}
-                    <button type="submit">대화 기록 추출</button>
+                    <input type="password" name="password1" placeholder="새 비밀번호">
+                    <input type="password" name="password2" placeholder="비밀번호 확인">
+                    <button type="submit">비밀번호 변경</button>
                 </form>
             </div>
-            <div class="section">
-                <h2>메인 페이지로 이동</h2>
-                <!-- 메인 페이지로 이동 버튼 -->
-                <button onclick="window.location.href='/'">Home</button>
-            </div>
-        </div>
-        <!-- 회원 탈퇴 섹션 -->
-        <div class="section home-button">
-            <h2>입력 수정</h2><h6>현재 {{genre}}</h6>
-            <form method="POST" action="{% url 'change_genre' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <input type="checkbox" name='genre' id='genre_action' value="액션" {% if '액션' in form.genre.value %}checked{% endif %}>액션</input>
-                    <input type="checkbox" name='genre' id='genre_western' value="서부극(웨스턴)" {% if '서부극(웨스턴)' in form.genre.value %}checked{% endif %}>서부극</input>
-                    <input type="checkbox" name='genre' id='genre_animation' value="애니메이션" {% if '애니메이션' in form.genre.value %}checked{% endif %}>애니메이션</input>
-                    <input type="checkbox" name='genre' id='genre_martial' value="무협" {% if '무협' in form.genre.value %}checked{% endif %}>무협</input>
-                    <input type="checkbox" name='genre' id='genre_fantasy' value="판타지" {% if '판타지' in form.genre.value %}checked{% endif %}>판타지</input>
-                    <input type="checkbox" name='genre' id='genre_adventure' value="어드벤처" {% if '어드벤처' in form.genre.value %}checked{% endif %}>어드벤처</input>
-                    <input type="checkbox" name='genre' id='genre_crime' value="범죄" {% if '범죄' in form.genre.value %}checked{% endif %}>범죄</input>
-                    <input type="checkbox" name='genre' id='genre_thriller' value="스릴러" {% if '스릴러' in form.genre.value %}checked{% endif %}>스릴러</input>
-                    <input type="checkbox" name='genre' id='genre_melodrama' value="멜로/로맨스" {% if '멜로/로맨스' in form.genre.value %}checked{% endif %}>멜로/로맨스</input>
-                    <input type="checkbox" name='genre' id='genre_mystery' value="추리" {% if '추리' in form.genre.value %}checked{% endif %}>추리</input>
-                    <input type="checkbox" name='genre' id='genre_comedy' value="코미디" {% if '코미디' in form.genre.value %}checked{% endif %}>코미디</input>
-                    <input type="checkbox" name='genre' id='genre_mystery' value="미스터리" {% if '미스터리' in form.genre.value %}checked{% endif %}>미스터리</input>
-                    <input type="checkbox" name='genre' id='genre_historical' value="사극" {% if '사극' in form.genre.value %}checked{% endif %}>사극</input>
-                    <input type="checkbox" name='genre' id='genre_period' value="시대극" {% if '시대극' in form.genre.value %}checked{% endif %}>시대극</input>
-                    <input type="checkbox" name='genre' id='genre_horror' value="공포(호러)" {% if '공포(호러)' in form.genre.value %}checked{% endif %}>공포(호러)</input>
-                    <input type="checkbox" name='genre' id='genre_investigation' value="수사" {% if '수사' in form.genre.value %}checked{% endif %}>수사</input>
-                    <input type="checkbox" name='genre' id='genre_drama' value="드라마" {% if '드라마' in form.genre.value %}checked{% endif %}>드라마</input>
-                    <input type="checkbox" name='genre' id='genre_documentary' value="다큐멘터리" {% if '다큐멘터리' in form.genre.value %}checked{% endif %}>다큐멘터리</input>
-                    <input type="checkbox" name='genre' id='genre_etc' value="기타" {% if '기타' in form.genre.value %}checked{% endif %}>기타</input>
-                    <input type="checkbox" name='genre' id='genre_sf' value="SF" {% if 'SF' in form.genre.value %}checked{% endif %}>SF</input>
-                </div>
-                <button type="submit">수정</button>
-            </form>
-        </div>
-        <div class="horizontal-sections">
-            <div class="section">
-                <form method="POST" action="{% url 'change_gender' %}">
-                    {% csrf_token %}
+            <!-- 성별 및 연령대 선택 섹션 -->
+            <div class="horizontal-sections">
+                <div class="section">
                     <h2>성별 선택</h2>
-                    {% if gender == 'M' %}
-                        <h6>현재 남성</h6>
-                    {% elif gender == 'F' %}
-                        <h6>현재 여성</h6>
-                    {% else %}
-                        <h6>현재 미선택</h6>
-                    {% endif %}
-                    <select class="form-control" name="gender" id="gender">
-                        <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
-                        <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
-                        <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
-                    </select>
-                    <button type="submit">수정</button>
-                </form>
-            </div>
-            <div class="section">
-                <form method="POST" action="{% url 'change_age_group' %}">
-                    {% csrf_token %}
-                    <h2>연령대 선택</h2>
-                    현재
-                    {% if 60 > age %}
-                        {% if age > 10 %}
-                            {{age}}대
+                    <form method="POST" action="{% url 'change_gender' %}">
+                        {% csrf_token %}
+                        {% if gender == 'M' %}
+                        <h6>성별 남성</h6>
+                        {% elif gender == 'F' %}
+                        <h6>성별 여성</h6>
                         {% else %}
-                            10대
+                        <h6>성별 미선택</h6>
                         {% endif %}
-                    {% elif age == 60 %}
-                        60대 이상
-                    {% else %}
-                        미선택
-                    {% endif %}
-                    <select class="form-control" name="age_group" id="age_group">
+                        <select class="form-control" name="gender" id="gender">
                             <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
-                            <option value="10" {% if form.gender.value == '10' %}selected{% endif %}>10대 이하</option>
-                            <option value="20" {% if form.gender.value == '20' %}selected{% endif %}>20대</option>
-                            <option value="30" {% if form.gender.value == '30' %}selected{% endif %}>30대</option>
-                            <option value="40" {% if form.gender.value == '40' %}selected{% endif %}>40대</option>
-                            <option value="50" {% if form.gender.value == '50' %}selected{% endif %}>50대</option>
-                            <option value="60" {% if form.gender.value == '60' %}selected{% endif %}>60대 이상</option>
+                            <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
+                            <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
                         </select>
-                    <button type="submit">수정</button>
+                        <button type="submit">수정</button>
+                    </form>
+                </div>
+                <div class="section">
+                    <h2>연령대 선택</h2>
+                    <form method="POST" action="{% url 'change_age_group' %}">
+                        {% csrf_token %}
+                        선택한 연령대
+                        {% if 60 > age %}
+                        {% if age > 10 %}
+                        {{age}}대
+                        {% else %}
+                        10대
+                        {% endif %}
+                        {% elif age == 60 %}
+                        60대 이상
+                        {% else %}
+                        미선택
+                        {% endif %}
+                        <select class="form-control" name="age_group" id="age_group">
+                            <option value="" {% if form.age_group.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                            <option value="10" {% if form.age_group.value == '10' %}selected{% endif %}>10대 이하</option>
+                            <option value="20" {% if form.age_group.value == '20' %}selected{% endif %}>20대</option>
+                            <option value="30" {% if form.age_group.value == '30' %}selected{% endif %}>30대</option>
+                            <option value="40" {% if form.age_group.value == '40' %}selected{% endif %}>40대</option>
+                            <option value="50" {% if form.age_group.value == '50' %}selected{% endif %}>50대</option>
+                            <option value="60" {% if form.age_group.value == '60' %}selected{% endif %}>60대 이상</option>
+                        </select>
+                        <button type="submit">수정</button>
+                    </form>
+                </div>
+            </div>
+            <!-- 회원 탈퇴 섹션 -->
+            <div class="section member-delete">
+                <h2>회원 탈퇴</h2>
+                <form method="POST" action="{% url 'delete_account' %}" onsubmit="return confirmDelete()">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">회원 탈퇴</button>
                 </form>
             </div>
         </div>
-        <div class="section home-button">
-            <h2>회원 탈퇴</h2>
-            <!-- 회원 탈퇴 폼 -->
-            <form method="POST" action="{% url 'delete_account' %}" onsubmit="return confirmDelete()">
-                {% csrf_token %}
-                <button type="submit">회원 탈퇴</button>
-            </form>
+
+        <!-- 설정 섹션 -->
+        <div class="settings-group">
+            <!-- 장르 수정 섹션 -->
+            <div class="section">
+                <h2>장르 수정</h2>
+                <h6>선택한 장르 {{genre}}</h6>
+                <form method="POST" action="{% url 'change_genre' %}">
+                    {% csrf_token %}
+                    <div class="genre-list">
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_action' value="액션" {% if '액션' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_action">액션</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_western' value="서부극(웨스턴)" {% if '서부극(웨스턴)' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_western">서부극(웨스턴)</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_animation' value="애니메이션" {% if '애니메이션' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_animation">애니메이션</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_martial' value="무협" {% if '무협' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_martial">무협</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_fantasy' value="판타지" {% if '판타지' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_fantasy">판타지</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_adventure' value="어드벤처" {% if '어드벤처' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_adventure">어드벤처</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_crime' value="범죄" {% if '범죄' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_crime">범죄</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_thriller' value="스릴러" {% if '스릴러' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_thriller">스릴러</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_melodrama' value="멜로/로맨스" {% if '멜로/로맨스' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_melodrama">멜로/로맨스</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_mystery' value="추리" {% if '추리' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_mystery">추리</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_comedy' value="코미디" {% if '코미디' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_comedy">코미디</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_mystery2' value="미스터리" {% if '미스터리' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_mystery2">미스터리</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_historical' value="사극" {% if '사극' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_historical">사극</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_period' value="시대극" {% if '시대극' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_period">시대극</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_horror' value="공포(호러)" {% if '공포(호러)' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_horror">공포(호러)</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_investigation' value="수사" {% if '수사' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_investigation">수사</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_drama' value="드라마" {% if '드라마' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_drama">드라마</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_documentary' value="다큐멘터리" {% if '다큐멘터리' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_documentary">다큐멘터리</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_sf' value="SF" {% if 'SF' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_sf">SF</label>
+                        </div>
+                        <div class="genre-item">
+                            <input type="checkbox" name='genre' id='genre_etc' value="기타" {% if '기타' in form.genre.value %}checked{% endif %}>
+                            <label for="genre_etc">기타</label>
+                        </div>
+                    </div>
+                    <button type="submit">수정</button>
+                </form>
+            </div>
+            <!-- 화면 색상 반전 및 음성 인식 버튼 섹션 -->
+            <div class="horizontal-sections">
+                <div class="section">
+                    <h2>화면 색상 반전</h2>
+                    <div style="text-align: center;">
+                        <button onclick="toggleDarkMode()">색상 반전</button>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2>음성 버튼 숨기기/보이기</h2>
+                    <button id="toggle-speech-button" onclick="toggleSpeechButton()">음성 인식 버튼 숨기기</button>
+                </div>
+            </div>
+            <!-- 대화 기록 추출 및 홈 버튼 섹션 -->
+            <div class="horizontal-sections chat-extraction">
+                <div class="section">
+                    <h2>대화 기록 추출</h2>
+                    <form method="POST" action="{% url 'chat_export' %}">
+                        {% csrf_token %}
+                        <button type="submit">대화 기록 추출</button>
+                    </form>
+                </div>
+                <div class="section">
+                    <h2>메인 페이지로 이동</h2>
+                    <button onclick="window.location.href='/'">Home</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
