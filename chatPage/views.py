@@ -14,13 +14,53 @@ from django.views.decorators.csrf import csrf_exempt
 import speech_recognition as sr
 import requests
 from bs4 import BeautifulSoup
-from django.contrib.auth.models import User
 import datetime
 import os
 import torch
 from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel, BartForConditionalGeneration
 from .forms import DocumentForm
 from django.contrib.auth import get_user_model
+import tensorflow as tf
+from konlpy.tag import Okt
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras import layers
+import re
+import json
+import numpy as np
+import pickle
+from .cnn_classifier import CNNClassifier
+
+DATA_IN_PATH = 'data_in/'
+model_name = 'cnn_classifier_kr'
+stop_words = set(['은', '는', '이', '가', '하', '아', '것', '들','의', '있', '되', '수', '보', '주', '등', '한'])
+prepro_configs = json.load(open(DATA_IN_PATH + 'data_configs.json', 'r'))
+
+kargs = {'model_name': model_name,
+        'vocab_size': prepro_configs['vocab_size'],
+        'embedding_size': 128,
+        'num_filters': 100,
+        'dropout_rate': 0.5,
+        'hidden_dimension': 250,
+        'output_dimension':1}
+
+okt=Okt()
+
+with open('data_out/cnn_classifier_kr/vocab_list.pkl', 'rb') as f:
+    d = pickle.load(f)
+tokenizer_clf = Tokenizer()
+tokenizer_clf.fit_on_texts(d)
+cnn_model = CNNClassifier(**kargs)
+dummy_input = tf.random.uniform((1, 40))
+cnn_model(dummy_input)
+cnn_model.load_weights('data_out/cnn_classifier_kr/cnn_classifier_kr_weights.h5')
+
+def preprocessing(review, okt, remove_stopwords = False, stop_words = []):
+    review_text = re.sub("[^가-힣ㄱ-ㅎㅏ-ㅣ\\s]", "", review)
+    word_review = okt.morphs(review_text, stem=True)
+    if remove_stopwords:
+        word_review = [token for token in word_review if not token in stop_words]
+    return word_review
 
 tokenizer = PreTrainedTokenizerFast.from_pretrained('digit82/kobart-summarization')
 summary_model = BartForConditionalGeneration.from_pretrained('digit82/kobart-summarization')
@@ -112,7 +152,7 @@ def signup(request):
 def userchat(request):
     if request.method == 'POST':
         # device = torch.device('cuda:0')
-        device = torch.device('cpu')
+        # device = torch.device('cpu')
         content = request.POST.get('content')
         author_id = request.POST.get('author')
         upload = request.FILES.get('upload')
@@ -181,35 +221,32 @@ def userchat(request):
                 user.author_id = author_id
                 user.save()
 
-            # koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
-            #             bos_token=BOS, eos_token=EOS, unk_token='<unk>',
-            #             pad_token=PAD, mask_token=MASK) 
-            # model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
+            q = content.strip()
+            a = ""
+            if (q != '') and (type(q) == str):
+                clf_text = [preprocessing(q, okt, remove_stopwords=True, stop_words=stop_words)]
+                test_sequences = tokenizer_clf.texts_to_sequences(clf_text)
+                test_inputs = pad_sequences(test_sequences, maxlen=40, padding='post')
+                res = (cnn_model.predict(test_inputs) > 0.5).astype(np.int32)
+            
+            if res:
+                with torch.no_grad():
+                    while True:
+                        input_ids = torch.LongTensor(koGPT2_TOKENIZER.encode(Q_TKN + q + SENT + A_TKN + a)).unsqueeze(dim=0)
+                        input_ids = input_ids.to(device)
+                        pred = model(input_ids)
+                        pred = pred.logits
+                        gen = koGPT2_TOKENIZER.convert_ids_to_tokens(torch.argmax(pred, dim=-1).to('cpu').squeeze().numpy().tolist())[-1]
+                        if gen == EOS:
+                            break
+                        a += gen.replace("▁", " ")
+                    
+                    # print("User > {}".format(q))
+                    # print("Chatbot > {}".format(a.replace('<pad>', '').strip()))
 
-            # model_path = "chatbot_model_185457.pth" 
-            # model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
-            # checkpoint = torch.load(model_path)
-            # model.load_state_dict(checkpoint["model_state_dict"])
-            # model.eval()
-            # model.to(device)
-
-            with torch.no_grad():
-                q = content.strip()
-                a = ""
-                while True:
-                    input_ids = torch.LongTensor(koGPT2_TOKENIZER.encode(Q_TKN + q + SENT + A_TKN + a)).unsqueeze(dim=0)
-                    input_ids = input_ids.to(device)
-                    pred = model(input_ids)
-                    pred = pred.logits
-                    gen = koGPT2_TOKENIZER.convert_ids_to_tokens(torch.argmax(pred, dim=-1).to('cpu').squeeze().numpy().tolist())[-1]
-                    if gen == EOS:
-                        break
-                    a += gen.replace("▁", " ")
-                
-                print("User > {}".format(q))
-                print("Chatbot > {}".format(a.replace('<pad>', '').strip()))
-
-            answer = a.replace('<pad>', '').strip()
+                answer = a.replace('<pad>', '').strip()
+            else:
+                answer = '추천시스템이 완성되지 않았습니다.'
 
             form = AnswerForm()
             answer_form = form.save(commit=False)
