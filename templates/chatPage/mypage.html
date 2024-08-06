@@ -45,15 +45,19 @@
             margin-bottom: 20px;
             background: #333;
             color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            transition: background 0.3s, color 0.3s;
+            border-radius: 15px; /* 부드러운 테두리 */
+            border: 1px solid #444; /* 테두리 설정 */
+            background-clip: padding-box; /* 테두리 스타일 유지 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.1); /* 외부 그림자 및 내부 반사 */
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
         }
 
         /* 반전 모드 섹션 스타일 */
         .dark-mode .section {
-            background: #ddd;
+            background: #f4f4f4;
             color: #000;
+            border: 1px solid #ccc; /* 경계선 색상 조정 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), inset 0 0 10px rgba(0, 0, 0, 0.05); /* 그림자 조정 */
         }
 
         /* 섹션 제목 스타일 */
@@ -88,29 +92,33 @@
 
         /* 일반 버튼 스타일 */
         .section button {
-            background: #ff9800;
+            background: linear-gradient(45deg, #eda333, #ffdd55);
             color: #fff;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
             border: none;
             font-size: 1em;
             padding: 12px;
-            border-radius: 5px;
+            border-radius: 8px; /* 더 부드러운 버튼 모서리 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         /* 일반 버튼 호버 스타일 */
         .section button:hover {
-            background: #e67e22;
+            background: linear-gradient(45deg, #e88b00, #ffcc00); /* 호버 시 색상 조정 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px); /* 호버 시 살짝 위로 올라가는 효과 */
         }
 
         /* 회원 탈퇴 버튼 스타일 */
         .delete-button {
-            background: #ff4c4c !important;
+            background: linear-gradient(45deg, #ff4c4c, #ff6666) !important;
         }
 
         /* 회원 탈퇴 버튼 호버 스타일 */
         .delete-button:hover {
-            background: #e60000 !important;
+            background: linear-gradient(45deg, #e60000, #ff4c4c) !important;
+            transform: translateY(-2px);
         }
 
         .hidden {
@@ -249,6 +257,60 @@
                     alert("3개까지만 선택할 수 있습니다.");
                 }
             });
+
+            // 성별 선택 폼 AJAX 처리
+            $("form.gender-form").on('submit', function (event) {
+                event.preventDefault(); // 기본 폼 제출 막기
+                const data = $(this).serialize(); // 폼 데이터 직렬화
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr('action'),
+                    data: data,
+                    success: function (response) {
+                        alert("성별이 성공적으로 수정되었습니다.");
+                    },
+                    error: function () {
+                        alert("수정 중 오류가 발생했습니다.");
+                    }
+                });
+            });
+
+            // 연령대 선택 폼 AJAX 처리
+            $("form.age-form").on('submit', function (event) {
+                event.preventDefault(); // 기본 폼 제출 막기
+                const data = $(this).serialize(); // 폼 데이터 직렬화
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr('action'),
+                    data: data,
+                    success: function (response) {
+                        alert("연령대가 성공적으로 수정되었습니다.");
+                    },
+                    error: function () {
+                        alert("수정 중 오류가 발생했습니다.");
+                    }
+                });
+            });
+
+            // 장르 수정 폼 AJAX 처리
+            $("form.genre-form").on('submit', function (event) {
+                event.preventDefault(); // 기본 폼 제출 막기
+                const data = $(this).serialize(); // 폼 데이터 직렬화
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr('action'),
+                    data: data,
+                    success: function (response) {
+                        alert("장르가 성공적으로 수정되었습니다.");
+                    },
+                    error: function () {
+                        alert("수정 중 오류가 발생했습니다.");
+                    }
+                });
+            });
         });
     </script>
 </head>
@@ -259,7 +321,7 @@
         <div class="info-group">
             <!-- 비밀번호 설정 섹션 -->
             <div class="section">
-                <h2>비밀번호 설정</h2>
+                <h2>비밀번호 변경</h2>
                 <form method="POST" action="{% url 'change_password' %}">
                     {% csrf_token %}
                     <input type="password" name="password1" placeholder="새 비밀번호">
@@ -270,8 +332,8 @@
             <!-- 성별 및 연령대 선택 섹션 -->
             <div class="horizontal-sections">
                 <div class="section">
-                    <h2>성별 선택</h2>
-                    <form method="POST" action="{% url 'change_gender' %}">
+                    <h2>성별 수정</h2>
+                    <form method="POST" action="{% url 'change_gender' %}" class="gender-form">
                         {% csrf_token %}
                         {% if gender == 'M' %}
                         <h6>성별 남성</h6>
@@ -285,12 +347,12 @@
                             <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
                             <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
                         </select>
-                        <button type="submit">수정</button>
+                        <button type="submit">성별 수정</button>
                     </form>
                 </div>
                 <div class="section">
-                    <h2>연령대 선택</h2>
-                    <form method="POST" action="{% url 'change_age_group' %}">
+                    <h2>연령대 변경</h2>
+                    <form method="POST" action="{% url 'change_age_group' %}" class="age-form">
                         {% csrf_token %}
                         선택한 연령대
                         {% if 60 > age %}
@@ -313,7 +375,7 @@
                             <option value="50" {% if form.age_group.value == '50' %}selected{% endif %}>50대</option>
                             <option value="60" {% if form.age_group.value == '60' %}selected{% endif %}>60대 이상</option>
                         </select>
-                        <button type="submit">수정</button>
+                        <button type="submit">연령대 변경</button>
                     </form>
                 </div>
             </div>
@@ -331,9 +393,9 @@
         <div class="settings-group">
             <!-- 장르 수정 섹션 -->
             <div class="section">
-                <h2>장르 수정</h2>
+                <h2>장르 변경</h2>
                 <h6>선택한 장르 {{genre}}</h6>
-                <form method="POST" action="{% url 'change_genre' %}">
+                <form method="POST" action="{% url 'change_genre' %}" class="genre-form">
                     {% csrf_token %}
                     <div class="genre-list">
                         <div class="genre-item">
@@ -417,7 +479,7 @@
                             <label for="genre_etc">기타</label>
                         </div>
                     </div>
-                    <button type="submit">수정</button>
+                    <button type="submit">장르 변경</button>
                 </form>
             </div>
             <!-- 화면 색상 반전 및 음성 인식 버튼 섹션 -->
