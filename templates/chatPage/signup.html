@@ -25,7 +25,10 @@
         margin-bottom: 20px;
     }
 
-    .join-form input[type="text"], .join-form input[type="password"], .join-form input[type="date"], .join-form select {
+    .join-form input[type="text"], 
+    .join-form input[type="password"], 
+    .join-form input[type="date"], 
+    .join-form select {
         width: 100%;
         padding: 10px;
         margin: 10px 0;
@@ -49,14 +52,20 @@
         background: #f40612;
     }
 
-    .email-section {
-        display: flex;
-        justify-content: space-between;
+    .required:after {
+        content: "*";
+        color: red;
+        margin-left: 5px;
     }
 
-    .email-section select,
-    .email-section input {
-        width: 48%;
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .flex-container .form-control {
+        width: 100%;
     }
 
     input[type="checkbox"] {
@@ -77,67 +86,70 @@
             {% csrf_token %}
             {% include "form_errors.html" %}
             <div class="mb-3">
-                <label for="username">사용자 이름</label>
+                <label for="username" class="required">사용자 이름</label>
                 <input type="text" class="form-control" name="username" id="username"
                        value="{{ form.username.value|default_if_none:'' }}">
             </div>
             <div class="mb-3">
-                <label for="password1">비밀번호</label>
+                <label for="password1" class="required">비밀번호</label>
                 <input type="password" class="form-control" name="password1" id="password1"
                        value="{{ form.password1.value|default_if_none:'' }}">
             </div>
             <div class="mb-3">
-                <label for="password2">비밀번호 확인</label>
+                <label for="password2" class="required">비밀번호 확인</label>
                 <input type="password" class="form-control" name="password2" id="password2"
                        value="{{ form.password2.value|default_if_none:'' }}">
             </div>
             <div class="mb-3">
-                <label for="email">이메일</label>
+                <label for="email" class="required">이메일</label>
                 <input type="text" class="form-control" name="email" id="email"
                        value="{{ form.email.value|default_if_none:'' }}">
             </div>
-            <div class="mb-3">
-                <label for="gender">성별(선택)</label>
-                <select class="form-control" name="gender" id="gender">
-                    <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
-                    <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
-                    <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
-                </select>
+            <div class="flex-container">
+                <div class="mb-3" style="flex: 1;">
+                    <label for="gender">성별</label>
+                    <select class="form-control" name="gender" id="gender">
+                        <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                        <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>남성</option>
+                        <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>여성</option>
+                    </select>
+                </div>
+                <div class="mb-3" style="flex: 1;">
+                    <label for="age_group">연령대</label>
+                    <select class="form-control" name="age_group" id="age_group">
+                        <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
+                        <option value="10" {% if form.gender.value == '10' %}selected{% endif %}>10대 이하</option>
+                        <option value="20" {% if form.gender.value == '20' %}selected{% endif %}>20대</option>
+                        <option value="30" {% if form.gender.value == '30' %}selected{% endif %}>30대</option>
+                        <option value="40" {% if form.gender.value == '40' %}selected{% endif %}>40대</option>
+                        <option value="50" {% if form.gender.value == '50' %}selected{% endif %}>50대</option>
+                        <option value="60" {% if form.gender.value == '60' %}selected{% endif %}>60대 이상</option>
+                    </select>
+                </div>
             </div>
+            <h2 style="text-align: center;">선호 장르</h2>
+            <p style="text-align: center; color: #ccc;">최대 3개 선택 가능</p>
             <div class="mb-3">
-                <label for="age_group">연령대(선택)</label>
-                <select class="form-control" name="age_group" id="age_group">
-                    <option value="" {% if form.gender.value|default_if_none:'' == '' %}selected{% endif %}>선택하세요</option>
-                    <option value="10" {% if form.gender.value == '10' %}selected{% endif %}>10대 이하</option>
-                    <option value="20" {% if form.gender.value == '20' %}selected{% endif %}>20대</option>
-                    <option value="30" {% if form.gender.value == '30' %}selected{% endif %}>30대</option>
-                    <option value="40" {% if form.gender.value == '40' %}selected{% endif %}>40대</option>
-                    <option value="50" {% if form.gender.value == '50' %}selected{% endif %}>50대</option>
-                    <option value="60" {% if form.gender.value == '60' %}selected{% endif %}>60대 이상</option>
-                </select>
-            </div>
-            <h2 style="text-align: center;">선호 장르(선택)</h2>
-            <div class="mb-3">
-                <input type="checkbox" name='genre' id='genre_action' value="액션" {% if '액션' in form.genre.value %}checked{% endif %}>액션</input>
-                <input type="checkbox" name='genre' id='genre_western' value="서부극(웨스턴)" {% if '서부극(웨스턴)' in form.genre.value %}checked{% endif %}>서부극</input>
-                <input type="checkbox" name='genre' id='genre_animation' value="애니메이션" {% if '애니메이션' in form.genre.value %}checked{% endif %}>애니메이션</input>
-                <input type="checkbox" name='genre' id='genre_martial' value="무협" {% if '무협' in form.genre.value %}checked{% endif %}>무협</input>
-                <input type="checkbox" name='genre' id='genre_fantasy' value="판타지" {% if '판타지' in form.genre.value %}checked{% endif %}>판타지</input>
-                <input type="checkbox" name='genre' id='genre_adventure' value="어드벤처" {% if '어드벤처' in form.genre.value %}checked{% endif %}>어드벤처</input>
-                <input type="checkbox" name='genre' id='genre_crime' value="범죄" {% if '범죄' in form.genre.value %}checked{% endif %}>범죄</input>
-                <input type="checkbox" name='genre' id='genre_thriller' value="스릴러" {% if '스릴러' in form.genre.value %}checked{% endif %}>스릴러</input>
-                <input type="checkbox" name='genre' id='genre_melodrama' value="멜로/로맨스" {% if '멜로/로맨스' in form.genre.value %}checked{% endif %}>멜로/로맨스</input>
-                <input type="checkbox" name='genre' id='genre_mystery' value="추리" {% if '추리' in form.genre.value %}checked{% endif %}>추리</input>
-                <input type="checkbox" name='genre' id='genre_comedy' value="코미디" {% if '코미디' in form.genre.value %}checked{% endif %}>코미디</input>
-                <input type="checkbox" name='genre' id='genre_mystery' value="미스터리" {% if '미스터리' in form.genre.value %}checked{% endif %}>미스터리</input>
-                <input type="checkbox" name='genre' id='genre_historical' value="사극" {% if '사극' in form.genre.value %}checked{% endif %}>사극</input>
-                <input type="checkbox" name='genre' id='genre_period' value="시대극" {% if '시대극' in form.genre.value %}checked{% endif %}>시대극</input>
-                <input type="checkbox" name='genre' id='genre_horror' value="공포(호러)" {% if '공포(호러)' in form.genre.value %}checked{% endif %}>공포(호러)</input>
-                <input type="checkbox" name='genre' id='genre_investigation' value="수사" {% if '수사' in form.genre.value %}checked{% endif %}>수사</input>
-                <input type="checkbox" name='genre' id='genre_drama' value="드라마" {% if '드라마' in form.genre.value %}checked{% endif %}>드라마</input>
-                <input type="checkbox" name='genre' id='genre_documentary' value="다큐멘터리" {% if '다큐멘터리' in form.genre.value %}checked{% endif %}>다큐멘터리</input>
-                <input type="checkbox" name='genre' id='genre_etc' value="기타" {% if '기타' in form.genre.value %}checked{% endif %}>기타</input>
-                <input type="checkbox" name='genre' id='genre_sf' value="SF" {% if 'SF' in form.genre.value %}checked{% endif %}>SF</input>
+                <input type="checkbox" name='genre' id='genre_action' value="액션" {% if '액션' in form.genre.value %}checked{% endif %}>액션
+                <input type="checkbox" name='genre' id='genre_western' value="서부극(웨스턴)" {% if '서부극(웨스턴)' in form.genre.value %}checked{% endif %}>서부극
+                <input type="checkbox" name='genre' id='genre_animation' value="애니메이션" {% if '애니메이션' in form.genre.value %}checked{% endif %}>애니메이션
+                <input type="checkbox" name='genre' id='genre_martial' value="무협" {% if '무협' in form.genre.value %}checked{% endif %}>무협
+                <input type="checkbox" name='genre' id='genre_fantasy' value="판타지" {% if '판타지' in form.genre.value %}checked{% endif %}>판타지
+                <input type="checkbox" name='genre' id='genre_adventure' value="어드벤처" {% if '어드벤처' in form.genre.value %}checked{% endif %}>어드벤처
+                <input type="checkbox" name='genre' id='genre_crime' value="범죄" {% if '범죄' in form.genre.value %}checked{% endif %}>범죄
+                <input type="checkbox" name='genre' id='genre_thriller' value="스릴러" {% if '스릴러' in form.genre.value %}checked{% endif %}>스릴러
+                <input type="checkbox" name='genre' id='genre_melodrama' value="멜로/로맨스" {% if '멜로/로맨스' in form.genre.value %}checked{% endif %}>멜로/로맨스
+                <input type="checkbox" name='genre' id='genre_mystery' value="추리" {% if '추리' in form.genre.value %}checked{% endif %}>추리
+                <input type="checkbox" name='genre' id='genre_comedy' value="코미디" {% if '코미디' in form.genre.value %}checked{% endif %}>코미디
+                <input type="checkbox" name='genre' id='genre_mystery2' value="미스터리" {% if '미스터리' in form.genre.value %}checked{% endif %}>미스터리
+                <input type="checkbox" name='genre' id='genre_historical' value="사극" {% if '사극' in form.genre.value %}checked{% endif %}>사극
+                <input type="checkbox" name='genre' id='genre_period' value="시대극" {% if '시대극' in form.genre.value %}checked{% endif %}>시대극
+                <input type="checkbox" name='genre' id='genre_horror' value="공포(호러)" {% if '공포(호러)' in form.genre.value %}checked{% endif %}>공포(호러)
+                <input type="checkbox" name='genre' id='genre_investigation' value="수사" {% if '수사' in form.genre.value %}checked{% endif %}>수사
+                <input type="checkbox" name='genre' id='genre_drama' value="드라마" {% if '드라마' in form.genre.value %}checked{% endif %}>드라마
+                <input type="checkbox" name='genre' id='genre_documentary' value="다큐멘터리" {% if '다큐멘터리' in form.genre.value %}checked{% endif %}>다큐멘터리
+                <input type="checkbox" name='genre' id='genre_sf' value="기타" {% if '기타' in form.genre.value %}checked{% endif %}>기타
+                <input type="checkbox" name='genre' id='genre_etc' value="SF" {% if 'SF' in form.genre.value %}checked{% endif %}>SF
             </div>
             <button type="submit" class="btn">생성하기</button>
         </form>
