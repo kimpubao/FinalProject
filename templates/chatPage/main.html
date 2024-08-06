@@ -2,13 +2,11 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul Movie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-        integrity="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="anonymous">
     <style>
         /* 기존 스타일 정의 */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -482,19 +480,28 @@
             }
         }
 
+        /* 마이페이지 버튼 스타일 */
         .mypage-button {
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
+            background: linear-gradient(45deg, #eda333, #ffdd55);
+            color: #fff;
             cursor: pointer;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+            border: none;
+            font-size: 1em;
+            padding: 12px;
+            border-radius: 8px; /* 더 부드러운 버튼 모서리 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
             width: 100%;
+            /* 가로 길이 */
+            margin-bottom: 20px;
+            /* 아래쪽 간격 추가 */
         }
 
         .mypage-button:hover {
-            background-color: #e67e22;
+            background: linear-gradient(45deg, #e88b00, #ffcc00); /* 호버 시 색상 조정 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px); /* 호버 시 살짝 위로 올라가는 효과 */
         }
 
         /* 페이드 인 애니메이션 */
@@ -904,6 +911,5 @@
         }
     </script>
 </body>
-
 </html>
 {% endblock %}
