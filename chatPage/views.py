@@ -55,12 +55,12 @@ dummy_input = tf.random.uniform((1, 40))
 cnn_model(dummy_input)
 cnn_model.load_weights('data_out/cnn_classifier_kr/cnn_classifier_kr_weights.h5')
 
-def preprocessing(review, okt, remove_stopwords = False, stop_words = []):
-    review_text = re.sub("[^가-힣ㄱ-ㅎㅏ-ㅣ\\s]", "", review)
-    word_review = okt.morphs(review_text, stem=True)
+def preprocessing(text, okt, remove_stopwords = False, stop_words = []):
+    user_text = re.sub("[^가-힣ㄱ-ㅎㅏ-ㅣ\\s]", "", text)
+    word_text = okt.morphs(user_text, stem=True)
     if remove_stopwords:
-        word_review = [token for token in word_review if not token in stop_words]
-    return word_review
+        word_text = [token for token in word_text if not token in stop_words]
+    return word_text
 
 tokenizer = PreTrainedTokenizerFast.from_pretrained('digit82/kobart-summarization')
 summary_model = BartForConditionalGeneration.from_pretrained('digit82/kobart-summarization')
@@ -81,7 +81,7 @@ koGPT2_TOKENIZER = PreTrainedTokenizerFast.from_pretrained("skt/kogpt2-base-v2",
             pad_token=PAD, mask_token=MASK) 
 model = GPT2LMHeadModel.from_pretrained('skt/kogpt2-base-v2')
 
-model_path = "chatbot_model_185457.pth" 
+model_path = "chatbot_model_432634.pth" 
 model = GPT2LMHeadModel.from_pretrained("skt/kogpt2-base-v2")
 checkpoint = torch.load(model_path, map_location='cpu')
 model.load_state_dict(checkpoint["model_state_dict"])
@@ -152,7 +152,6 @@ def signup(request):
 def userchat(request):
     if request.method == 'POST':
         # device = torch.device('cuda:0')
-        # device = torch.device('cpu')
         content = request.POST.get('content')
         author_id = request.POST.get('author')
         upload = request.FILES.get('upload')
