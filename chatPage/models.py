@@ -12,6 +12,7 @@ class Answer(models.Model):
     question = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     content = models.TextField()
     create_date = models.DateTimeField()
+    poster_link = models.TextField(null=True, blank=True)
 
 class User(AbstractUser):
     gender = models.CharField(max_length=1, default="", null=True, blank=True)

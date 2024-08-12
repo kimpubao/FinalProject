@@ -266,6 +266,11 @@
             color: #f0f0f0;
         }
 
+        .message.bot {
+            flex-direction: column;
+            align-items: center;
+        }
+
         .dark-mode .message.user .text {
             background-color: #ff9800;
             color: #fff;
@@ -605,7 +610,10 @@
                     </div>
                     {% else %}
                     <div class="message bot">
-                        <div class="text">{{ i.1 }}</div>
+                        {% if i.3 %}
+                        <img src="{{i.3}}" alt="영화포스터" width="200" height="300" style="width: 200px; height: 300px; display: block; margin: 0 auto 10px 0;;"></img>
+                        {% endif %}
+                        <div class="text" style="text-align: left;">{{ i.1 }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -762,7 +770,8 @@
                 if (response.ok) {
                     const result = await response.json();
                     botResponse = result.message;
-                    console.log(result.message);
+                    resImage = result.link;
+                    console.log(result);
                 } else {
                     console.error('Error:', response.statusText);
                 }
@@ -770,6 +779,22 @@
                 // 봇 메시지를 추가
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'message bot';
+
+                // 이미지가 있을 경우 img 태그를 먼저 생성하여 추가
+                if (resImage) {
+                    const imgTag = document.createElement('img');
+                    imgTag.src = resImage;
+                    imgTag.alt = "영화포스터";
+                    imgTag.width = 200;
+                    imgTag.height = 300;
+                    imgTag.style.width = "200px";
+                    imgTag.style.height = "300px";
+                    imgTag.style.display = "block";
+                    imgTag.style.margin = "0 auto 10px 0";
+
+                    botMessageDiv.appendChild(imgTag);
+                }
+
                 const botMessageTextDiv = document.createElement('div');
                 botMessageTextDiv.className = 'text';
                 botMessageDiv.appendChild(botMessageTextDiv);
