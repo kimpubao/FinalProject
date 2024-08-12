@@ -11,6 +11,20 @@ data = pd.read_csv('movie_data')
 tfidf_matrix = tfidf.fit_transform(data['Processed_Text'])
 okt=Okt()
 
+
+# 텍스트를 토큰화하고 원형으로 복원하는 함수 정의
+def tokenize_and_lemmatize(text):
+    if isinstance(text, str):  # Check if 'text' is a string
+        tokens = okt.morphs(text, stem=True)
+        return ' '.join(tokens)
+    else:
+        return ''  # Return an empty string or handle NaN case appropriately
+    
+# 텍스트 데이터에 함수 적용
+data['synopsis_processed'] = data['줄거리'].apply(tokenize_and_lemmatize)
+# 처리된 텍스트 데이터 벡터화
+tfidf_matrix_synopsys = tfidf.transform(data['synopsis_processed'])
+
 stop_words_ko = {"및", "도", "에", "의", "가", "이", "은", "는", "을", "를", "에서", "로", "과", "와", "한", "그", "이", "하", "여", "속", "전", "자", "이다"}
 # 장르 동의어 매핑 생성
 genre_synonyms_ko = {
@@ -22,13 +36,7 @@ genre_synonyms_ko = {
     '서부': ['서부', '웨스턴', '카우보이', '서부극', 'western'],
 }
 
-# 텍스트를 토큰화하고 원형으로 복원하는 함수 정의
-def tokenize_and_lemmatize(text):
-    if isinstance(text, str):  # Check if 'text' is a string
-        tokens = okt.morphs(text, stem=True)
-        return ' '.join(tokens)
-    else:
-        return ''  # Return an empty string or handle NaN case appropriately
+
 
 # 장르 동의어를 정규화하는 함수
 def normalize_genre_from_synonyms_ko(keyword):
@@ -381,64 +389,84 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
     else:
         # movie_title이 없는 경우 나머지 조건들을 사용하여 추천
         sim_scores = []
+        # print("nnp_and_nng_review 내용:", nnp_and_nng_review)
+        exclude_words = ['영화', '추천','내용','줄거리']
+        words_only = [word for word, tag in nnp_and_nng_review if word not in exclude_words]
+        words_text = ' '.join(words_only)
+        # print("words_text 내용:", words_text)
+        if any(word == '내용' or word == '줄거리' for word, tag in nnp_and_nng_review):
+            # user_input을 벡터화한 것과 영화를 비교하는 로직
+            user_tfidf_vector = tfidf.transform([tokenize_and_lemmatize(words_text)])
+            cosine_sim_user = linear_kernel(user_tfidf_vector, tfidf_matrix_synopsys)
 
-        for idx in filtered_data.index:
-            genre_score = 0
-            year_score = 0  # 각 영화마다 year_score을 초기화
+            for idx in filtered_data.index:
+                sim_score = cosine_sim_user[0, idx]
 
-            # '최신'이란 단어가 있으면 연도에 따라 점수 부여
-            similar_words = ['최신', '최근', '새로운', '신작', '최신작', '최근 개봉한', '개봉한', '요즘', '개봉작', '유행']
+                # 최종 점수 계산 및 저장
+                total_score = sim_score  # 여기에 필요한 가중치를 추가하여 계산할 수 있습니다.
+                sim_scores.append((idx, total_score))
 
-            # '최신'과 유사한 단어가 있는지 확인
-            if any(word in similar_words for word, tag in nnp_and_nng_review):
-                if data.loc[idx, '연도'] == 2024:
-                    year_score = 2
+            # 유사도 점수로 정렬 후 상위 5개를 선택
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
+            movie_indices = [i[0] for i in sim_scores]
+            similarity_scores = [i[1] for i in sim_scores]
 
-            if genre:
-                searched_m_genres = [g.strip().lower() for g in data.loc[idx, '장르'].split(',')]
-                if genre.strip().lower() in searched_m_genres:
-                    genre_score = weights['genre_weight']
+            # 영화 제목과 장르를 리스트로 반환
+            recommendations = data.iloc[movie_indices][['영화명', '평점', '연도', '상영시간', '연령', '감독', '출연진', '줄거리', '장르']].values.tolist()
+            return recommendations, similarity_scores
+        else:
+            for idx in filtered_data.index:
+                genre_score = 0
+                year_score = 0  # 각 영화마다 year_score을 초기화
 
-            director_score = weights['director_weight'] if director and director in data.loc[idx, '감독'] else 0
-            actor_score = weights['actor_weight'] if actor and actor in data.loc[idx, '출연진'] else 0
+                # '최신'이란 단어가 있으면 연도에 따라 점수 부여
+                if any(word == '최신' for word, tag in nnp_and_nng_review):
+                    if data.loc[idx, '연도'] == 2024:
+                        year_score = 2
 
-            genre_list = data.loc[idx, '장르'].split(',')
-            genre_weight_score = 0
-            genre_weights_list = []
+                if genre:
+                    searched_m_genres = [g.strip().lower() for g in data.loc[idx, '장르'].split(',')]
+                    if genre.strip().lower() in searched_m_genres:
+                        genre_score = weights['genre_weight']
 
-            if gender and age:
-                for genre1 in genre_list:
-                    genre1 = genre1.strip()
-                    for column in genre_weights.columns:
-                        if any(genre_part.strip() == genre1 for genre_part in column.split('/')):
-                            genre_weight = genre_weights[column].values[0]
-                            genre_weights_list.append(genre_weight)
-                            break
+                director_score = weights['director_weight'] if director and director in data.loc[idx, '감독'] else 0
+                actor_score = weights['actor_weight'] if actor and actor in data.loc[idx, '출연진'] else 0
 
-                if len(genre_weights_list) >= 2:
-                    genre_weights_list.sort(reverse=True)
-                    genre_weight_score = genre_weights_list[0] + genre_weights_list[1]
-                    genre_weight_score /= 2
-                else:
-                    genre_weight_score = sum(genre_weights_list)
+                genre_list = data.loc[idx, '장르'].split(',')
+                genre_weight_score = 0
+                genre_weights_list = []
 
-            favored_genre_weight_score = 0
-            if favored_genres:
-                for favor_genre in favored_genres:
-                    if favor_genre in genre_list:
-                        favored_genre_weight_score += weights['favored_genre_weight']
+                if gender and age:
+                    for genre1 in genre_list:
+                        genre1 = genre1.strip()
+                        for column in genre_weights.columns:
+                            if any(genre_part.strip() == genre1 for genre_part in column.split('/')):
+                                genre_weight = genre_weights[column].values[0]
+                                genre_weights_list.append(genre_weight)
+                                break
 
-            total_score = genre_score + director_score + actor_score + genre_weight_score + favored_genre_weight_score + year_score
-            sim_scores.append((idx, total_score))
+                    if len(genre_weights_list) >= 2:
+                        genre_weights_list.sort(reverse=True)
+                        genre_weight_score = genre_weights_list[0] + genre_weights_list[1]
+                        genre_weight_score /= 2
+                    else:
+                        genre_weight_score = sum(genre_weights_list)
 
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        # 상위 5개 출력
-        sim_scores = sim_scores[:5]
-        movie_indices = [i[0] for i in sim_scores]
-        recommendations = data.iloc[movie_indices]
-        similarity_scores = [i[1] for i in sim_scores]
-        return recommendations[['영화명', '장르']].values.tolist(), similarity_scores
-    
+                favored_genre_weight_score = 0
+                if favored_genres:
+                    for favor_genre in favored_genres:
+                        if favor_genre in genre_list:
+                            favored_genre_weight_score += weights['favored_genre_weight']
+
+                total_score = genre_score + director_score + actor_score + genre_weight_score + favored_genre_weight_score + year_score
+                sim_scores.append((idx, total_score))
+
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
+            movie_indices = [i[0] for i in sim_scores]
+            recommendations = data.iloc[movie_indices]
+            similarity_scores = [i[1] for i in sim_scores]
+            return recommendations[['영화명', '평점', '연도', '상영시간', '연령', '감독', '출연진', '줄거리', '장르']].values.tolist(), similarity_scores
+
 def get_user_input():
     """사용자 입력을 받아 전처리 후 반환"""
     user_input = input("영화 제목, 원하는 장르, 감독 또는 출연 배우를 입력하세요 (예: 공포, 액션, 멜로, 서부, 로버트 다우니 주니어): ")
@@ -466,8 +494,8 @@ def process_user_input(user_input, komoran, movie_name_genre, directors, cast_me
 def display_recommendations(movie_title, genre, director, actor, gender, age, favored_genres, cosine_sim, data, nnp_and_nng_review, movie_name_genre):
     """영화 추천 결과를 출력"""
     recommendations, similarity_scores = get_recommendations(movie_title, genre, director, actor, gender, age, favored_genres, cosine_sim, data, nnp_and_nng_review, movie_name_genre)
-    print("추천된 영화:")
-    print(recommendations)
+    # print("추천된 영화:")
+    # print(recommendations)
     # print("유사도 점수:")
     # print(similarity_scores)
     return recommendations

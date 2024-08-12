@@ -290,7 +290,7 @@ def userchat(request):
                     filtered_review, nnp_and_nng_review, movie_found, genre, director, actor = process_user_input(q, komoran, movie_name_genre, directors, cast_members, genres)
                     movie_title = movie_found['영화명'].tolist()[0] if movie_found is not None and not movie_found.empty else None
                     answers = display_recommendations(movie_title, genre, director, actor, g, a, favored_genres, cosine_sim, movie_data, nnp_and_nng_review, movie_name_genre)
-                    cnt = 0
+                    
                     for poster in movie_poster_links:
                         for i in range(3):
                             if poster[0] == answers[i][0]:
@@ -313,7 +313,7 @@ def userchat(request):
                         movie_actors = output['출연진'].values[0]
                         movie_genre = output['장르'].values[0]
                         answer += f'영화명:{movie_name}\n평점:{movie_lating}  연도:{movie_year}  상영시간:{movie_playtime}  연령:{movie_age}\n감독 및 출연진: {movie_director}, {movie_actors}\n장르: {movie_genre}\n\n'
-                    answer = answer.rstrip()                    
+                    answer = answer.rstrip()
 
                 form = AnswerForm()
                 answer_form = form.save(commit=False)
