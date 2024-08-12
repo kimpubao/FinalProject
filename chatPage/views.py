@@ -289,22 +289,31 @@ def userchat(request):
                     favored_genres = user.genre if user.genre else None
                     filtered_review, nnp_and_nng_review, movie_found, genre, director, actor = process_user_input(q, komoran, movie_name_genre, directors, cast_members, genres)
                     movie_title = movie_found['영화명'].tolist()[0] if movie_found is not None and not movie_found.empty else None
-                    answer = display_recommendations(movie_title, genre, director, actor, g, a, favored_genres, cosine_sim, movie_data, nnp_and_nng_review, movie_name_genre)
+                    answers = display_recommendations(movie_title, genre, director, actor, g, a, favored_genres, cosine_sim, movie_data, nnp_and_nng_review, movie_name_genre)
+                    cnt = 0
                     for poster in movie_poster_links:
-                        if poster[0] == answer[0][0]:
-                            link = poster[1]
-                    output = movie_data[movie_data['영화명'] == answer[0][0]]
-                    # 영화명,평점,연도,상영시간,연령,감독,출연진,장르 출력 줄거리는 공간 확인 필요
-                    movie_name = output['영화명'].values[0]
-                    movie_lating = output['평점'].values[0]
-                    movie_year = output['연도'].values[0]
-                    movie_playtime = output['상영시간'].values[0]
-                    movie_age = output['연령'].values[0]
-                    movie_director = output['감독'].values[0]
-                    movie_actors = output['출연진'].values[0]
-                    movie_genre = output['장르'].values[0]
-                    answer = f'영화명:{movie_name}\n평점:{movie_lating}  연도:{movie_year}  상영시간:{movie_playtime}  연령:{movie_age}\n감독 및 출연진: {movie_director}, {movie_actors}\n장르: {movie_genre}'
-                    
+                        for i in range(3):
+                            if poster[0] == answers[i][0]:
+                                if poster[1]:
+                                    link = poster[1]
+                                    break
+                        if link:
+                            break
+                        
+                    answer = ''
+                    for i in range(3):
+                        output = movie_data[movie_data['영화명'] == answers[i][0]]
+                        # 영화명,평점,연도,상영시간,연령,감독,출연진,장르 출력 줄거리는 공간 확인 필요
+                        movie_name = output['영화명'].values[0]
+                        movie_lating = output['평점'].values[0]
+                        movie_year = output['연도'].values[0]
+                        movie_playtime = output['상영시간'].values[0]
+                        movie_age = output['연령'].values[0]
+                        movie_director = output['감독'].values[0]
+                        movie_actors = output['출연진'].values[0]
+                        movie_genre = output['장르'].values[0]
+                        answer += f'영화명:{movie_name}\n평점:{movie_lating}  연도:{movie_year}  상영시간:{movie_playtime}  연령:{movie_age}\n감독 및 출연진: {movie_director}, {movie_actors}\n장르: {movie_genre}\n\n'
+                    answer = answer.rstrip()                    
 
                 form = AnswerForm()
                 answer_form = form.save(commit=False)
