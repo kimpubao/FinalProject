@@ -425,9 +425,15 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
                         year_score = 2
 
                 if genre:
+                    # 입력된 장르를 쉼표로 구분하여 소문자로 변환하고 공백을 제거한 후 리스트로 만듦
+                    input_genres = [g.strip().lower() for g in genre.split(',')]
+                    # 영화의 장르를 소문자로 변환하고 공백을 제거한 후 리스트로 만듦
                     searched_m_genres = [g.strip().lower() for g in data.loc[idx, '장르'].split(',')]
-                    if genre.strip().lower() in searched_m_genres:
-                        genre_score = weights['genre_weight']
+                    # 입력된 각 장르에 대해 영화의 장르 목록과 비교하여 일치하는 경우 가중치 적용
+                    genre_score = 0  # 장르 점수 초기화
+                    for input_genre in input_genres:
+                        if input_genre in searched_m_genres:
+                            genre_score += weights['genre_weight']  # 일치하는 장르마다 가중치 추가
 
                 director_score = weights['director_weight'] if director and director in data.loc[idx, '감독'] else 0
                 actor_score = weights['actor_weight'] if actor and actor in data.loc[idx, '출연진'] else 0
@@ -493,7 +499,7 @@ def process_user_input(user_input, komoran, movie_name_genre, directors, cast_me
 
 def display_recommendations(movie_title, genre, director, actor, gender, age, favored_genres, cosine_sim, data, nnp_and_nng_review, movie_name_genre):
     """영화 추천 결과를 출력"""
-    recommendations, similarity_scores = get_recommendations(movie_title, genre, director, actor, gender, age, favored_genres, cosine_sim, data, nnp_and_nng_review, movie_name_genre)
+    recommendations, similarity_scores = get_recommendations(movie_title=movie_title, genre=genre, director=director, actor=actor, gender=gender, age=age, favored_genres=favored_genres, cosine_sim=cosine_sim, data=data, nnp_and_nng_review=nnp_and_nng_review, movie_name_genre=movie_name_genre)
     # print("추천된 영화:")
     # print(recommendations)
     # print("유사도 점수:")
