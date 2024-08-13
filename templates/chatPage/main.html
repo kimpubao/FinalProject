@@ -60,26 +60,7 @@
 
         /* 축소된 사이드바 스타일 */
         .sidebar.collapsed {
-            width: 100px;
-        }
-
-        .sidebar.collapsed h2 {
-            font-size: 18px;
-            margin: 0;
-            opacity: 0;
-        }
-
-        /* 사이드바 제목 스타일 */
-        .sidebar h2 {
-            margin: 0 0 20px 0;
-            font-size: 24px;
-            font-weight: 500;
-            color: #f4a261;
-            transition: font-size 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
-        }
-
-        .dark-mode .sidebar h2 {
-            color: #1a1a1a;
+            width: 50px;
         }
 
         /* 사이드바 토글 버튼 스타일 */
@@ -182,13 +163,13 @@
 
         /* 메인 콘텐츠 스타일 */
         .main {
-            flex: 1;
+            /* flex: 1; */
             display: flex;
-            flex-direction: column;
+            flex-direction: column;  
             align-items: flex-end;
             /* 오른쪽 정렬 */
             overflow: hidden;
-            padding: 20px;
+            /* padding: 0px; */
         }
 
         .dark-mode .main {
@@ -462,18 +443,6 @@
                 height: 60px;
             }
 
-            .sidebar h2 {
-                font-size: 18px;
-                margin: 0;
-                opacity: 1;
-            }
-
-            .sidebar.collapsed h2 {
-                font-size: 18px;
-                margin: 0;
-                opacity: 1;
-            }
-
             .recommendation-log {
                 display: none;
             }
@@ -496,18 +465,17 @@
             transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
             border: none;
             font-size: 1em;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px; /* 더 부드러운 버튼 모서리 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            width: 200px;
-            margin-bottom: 20px;
-            /* 아래쪽 간격 추가 */
-            margin-bottom: 10px;
+            width: 187px;
+            margin-bottom: 0px;
             position: fixed; /* 버튼을 화면에 고정 */
-            bottom: 10px; 
-            left: 25px;
+            bottom: 0px; 
+            left: 10px;
             z-index: 10;
+            font-weight: bold;
+            text-align: center;
         }
 
         .mypage-button:hover {
@@ -595,7 +563,7 @@
         <div style="padding-top: 10px;">
                 {% for i in context %}
                     {% if i.3 %}
-                        <img class="recommendation-log" src="{{i.3}}" width="160" height="250" onclick="scrollToMessage({{ forloop.counter }})"></img>
+                        <img class="recommendation-log" src="{{i.3}}" width="150" height="250" onclick="scrollToMessage({{ forloop.counter }})"></img>
                     {% endif %}
                 {% endfor %}
             </div>
