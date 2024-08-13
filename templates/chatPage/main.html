@@ -40,7 +40,7 @@
 
         /* 사이드바 스타일 */
         .sidebar {
-            width: 300px;
+            width: 250px;
             background-color: #202020;
             padding: 20px;
             overflow-y: auto;
@@ -97,6 +97,8 @@
             justify-content: center;
             align-items: center;
             outline: none;
+            position: fixed; /* 버튼을 화면에 고정 */
+            z-index: 10;
         }
 
         .toggle-button:focus {
@@ -498,10 +500,14 @@
             border-radius: 8px; /* 더 부드러운 버튼 모서리 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-            width: 100%;
-            /* 가로 길이 */
+            width: 200px;
             margin-bottom: 20px;
             /* 아래쪽 간격 추가 */
+            margin-bottom: 10px;
+            position: fixed; /* 버튼을 화면에 고정 */
+            bottom: 10px; 
+            left: 25px;
+            z-index: 10;
         }
 
         .mypage-button:hover {
@@ -583,14 +589,18 @@
 <body>
     <div class="container">
         <!-- 사이드바 -->
-        <div id="sidebar" class="sidebar">
-            <div>
-                <button class="toggle-button left" onclick="toggleSidebar()" data-tooltip="사이드바 닫기"></button>
-                <h2>추천한 영화 목록</h2>
-                <div id="recommendation-log"></div>
+        <button class="toggle-button left" style="margin-top: 20px;" onclick="toggleSidebar()" data-tooltip="사이드바 닫기"></button>
+        <div id="sidebar" class="sidebar" style="margin-top: 70px;">
+        <h3 class="recommendation-log" style="text-align: center; font-weight: bold;">추천한 영화 목록</h3>
+        <div style="padding-top: 10px;">
+                {% for i in context %}
+                    {% if i.3 %}
+                        <img class="recommendation-log" src="{{i.3}}" width="160" height="250" onclick="scrollToMessage({{ forloop.counter }})"></img>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% if user.is_authenticated %}
-            <button class="mypage-button" data-href="{% url 'mypage' %}"
+            <button class="mypage-button recommendation-log" data-href="{% url 'mypage' %}"
                 onclick="window.location.href=this.getAttribute('data-href')">My Page</button>
             {% endif %}
         </div>
@@ -605,11 +615,11 @@
                     </div>
                     {% for i in context %}
                     {% if i.0 == 'user' %}
-                    <div class="message user">
+                    <div class="message user" id="message-{{ forloop.counter }}">
                         <div class="text">{{ i.1 }}</div>
                     </div>
                     {% else %}
-                    <div class="message bot">
+                    <div class="message bot" id="message-{{ forloop.counter }}">
                         {% if i.3 %}
                         <img src="{{i.3}}" alt="영화포스터" width="200" height="300" style="width: 200px; height: 300px; display: block; margin: 0 auto 10px 0;;"></img>
                         {% endif %}
@@ -653,6 +663,14 @@
         </div>
     </div>
     <script>
+        function scrollToMessage(id) {
+            const messageElement = document.getElementById('message-' + id);
+            if (messageElement) {
+                messageElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+
         function handleFileChange(event) {
             const chatBox = document.getElementById('chat-box');
             const fileName = event.target.files[0].name;
