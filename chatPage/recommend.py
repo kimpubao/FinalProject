@@ -498,7 +498,7 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
             # 영화 제목과 장르를 리스트로 반환
             recommendations = data.iloc[movie_indices][['영화명', '평점', '연도', '상영시간', '연령', '감독', '출연진', '줄거리', '장르']].values.tolist()
             return recommendations, similarity_scores
-        elif any(word in ['재미', '재미있는 영화', '흥미', '흥미있는 영화', '재미있는', '흥미있는'] for word, tag in nnp_and_nng_review):
+        elif any(word in ['재미','재밌는 영화', '재밌는', '재미있는 영화', '흥미', '흥미있는 영화', '재미있는', '흥미있는'] for word, tag in nnp_and_nng_review):
             for idx in filtered_data.index:
                 genre_score = 0
 
@@ -617,9 +617,12 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
                 total_score = genre_score + director_score + actor_score + genre_weight_score + favored_genre_weight_score + year_score
                 sim_scores.append((idx, total_score))
 
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            print(sim_scores)
+
+            # 최상위 점수를 가진 영화들 찾기
+            top_score = sim_scores[0][1]
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
-                        # 최상위 점수를 가진 영화들 찾기
-            
             top_score = sim_scores[0][1]
             top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
 
@@ -640,6 +643,7 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
                 top_movies.extend(additional_movies)
 
             top_movies = top_movies[:3]
+
             movie_indices = [i[0] for i in sim_scores]
             recommendations = data.iloc[movie_indices]
             similarity_scores = [i[1] for i in sim_scores]
