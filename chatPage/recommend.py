@@ -620,29 +620,24 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
             print(sim_scores)
 
-            # 최상위 점수를 가진 영화들 찾기
-            top_score = sim_scores[0][1]
-            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            print(sim_scores)
+
             top_score = sim_scores[0][1]
             top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
 
             if len(top_movies) > 3:
+                # 최상위 점수를 가진 영화가 4개 이상이면 랜덤으로 3개 선택
                 top_movies = random.sample(top_movies, 3)
-            elif len(top_movies) < 3:
-                remaining_count = 3 - len(top_movies)
-                remaining_movies = sim_scores[len(top_movies):]
+            else:
+                # 최상위 점수를 가진 영화가 3개 이하이면 그대로 사용
+                if len(top_movies) < 3:
+                    remaining_count = 3 - len(top_movies)
+                    # 다음 점수의 영화들 중에서 나머지 영화를 채움
+                    remaining_movies = [sim_scores[i] for i in range(len(top_movies), len(sim_scores))]
+                    remaining_movies = [m for m in remaining_movies if m[1] == sim_scores[len(top_movies)][1]]
+                    top_movies.extend(random.sample(remaining_movies, remaining_count))
 
-                if len(remaining_movies) >= remaining_count:
-                    if remaining_movies[0][1] == remaining_movies[-1][1]:
-                        additional_movies = random.sample(remaining_movies, remaining_count)
-                    else:
-                        additional_movies = remaining_movies[:remaining_count]
-                else:
-                    additional_movies = remaining_movies
-
-                top_movies.extend(additional_movies)
-
-            top_movies = top_movies[:3]
 
             movie_indices = [i[0] for i in top_movies]
             recommendations = data.iloc[movie_indices]
