@@ -690,6 +690,8 @@
             // 인사 문구 추가 (채팅 메시지가 있는지 확인 후 실행)
             const chatBox = document.getElementById('chat-box');
             chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 하단으로 이동
+            const recom = document.getElementById('sidebar');
+            recom.scrollTop = recom.scrollHeight;
             if (chatBox.children.length === 1) {
                 typeGreetingMessage();
             } else {
