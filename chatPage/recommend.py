@@ -644,9 +644,9 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
 
             top_movies = top_movies[:3]
 
-            movie_indices = [i[0] for i in sim_scores]
+            movie_indices = [i[0] for i in top_movies]
             recommendations = data.iloc[movie_indices]
-            similarity_scores = [i[1] for i in sim_scores]
+            similarity_scores = [i[1] for i in top_movies]
             return recommendations[['영화명', '평점', '연도', '상영시간', '연령', '감독', '출연진', '줄거리', '장르']].values.tolist(), similarity_scores
 
 def get_user_input():
