@@ -559,17 +559,17 @@
         <button class="toggle-button left" style="margin-top: 20px;" onclick="toggleSidebar()" data-tooltip="사이드바 닫기"></button>
         <div id="sidebar" class="sidebar" style="margin-top: 70px;">
         <h3 class="recommendation-log" style="text-align: center; font-weight: bold;">추천한 영화 목록</h3>
-        <div style="padding-top: 10px;">
-                {% for i in context %}
-                    {% if i.3 %}
-                        <img class="recommendation-log" src="{{i.3}}" width="150" height="250" onclick="scrollToMessage({{ forloop.counter }})"></img>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% if user.is_authenticated %}
-            <button class="mypage-button recommendation-log" data-href="{% url 'mypage' %}"
-                onclick="window.location.href=this.getAttribute('data-href')">My Page</button>
-            {% endif %}
+        <div style="padding-top: 10px;" id="recommendation-log">
+            {% for i in context %}
+                {% if i.3 %}
+                    <img class="recommendation-log" src="{{i.3}}" width="150" height="250" onclick="scrollToMessage({{ forloop.counter }})"></img>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if user.is_authenticated %}
+        <button class="mypage-button recommendation-log" data-href="{% url 'mypage' %}"
+            onclick="window.location.href=this.getAttribute('data-href')">My Page</button>
+        {% endif %}
         </div>
 
         <!-- 메인 콘텐츠 -->
@@ -727,7 +727,7 @@
             const recommendationLog = document.getElementById('recommendation-log');
             const fileInput = document.getElementById('file-input');
             const userMessage = input.value.trim();
-
+            
             const formData = new FormData();
             formData.append('content', userMessage);
             formData.append('author', '{{ user.id }}');
@@ -778,6 +778,18 @@
                     imgTag.style.margin = "0 auto 10px 0";
 
                     botMessageDiv.appendChild(imgTag);
+
+
+                    const recommendationLogDiv = document.querySelector('.recommendation-log').nextElementSibling;
+                    const logImage = document.createElement('img');
+                    logImage.src = resImage;
+                    logImage.width = 150;
+                    logImage.height = 250;
+                    logImage.className = 'recommendation-log';
+                    logImage.style.cursor = 'pointer';
+                    logImage.onclick = () => scrollToMessage(chatBox.childElementCount);
+
+                    recommendationLogDiv.appendChild(logImage);
                 }
 
                 const botMessageTextDiv = document.createElement('div');
