@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 import spacy
@@ -159,17 +160,28 @@ def find_matching_director(filtered_review, directors):
     return None
 
 def find_matching_genre(nnp_and_nng_review, genres):
-    if nnp_and_nng_review: # nnp_and_nng_review가 비어 있지 않은 경우에만 수행
+    # 장르 매핑 사전 추가
+    genre_mapping = {
+        '서부': '서부극',
+        '웨스턴': '서부극',
+        '카우보이': '서부극',
+        'western': '서부극'
+    }
+
+    # nnp_and_nng_review가 비어 있지 않은 경우에만 수행
+    if nnp_and_nng_review:
         matching_genres = []
         genre_list = genres  # 장르 목록을 리스트로 변환하여 일치 여부를 빠르게 검사
 
-        for word, _ in nnp_and_nng_review:
+        for word, tag in nnp_and_nng_review:
             # 명사 사이에 띄어쓰기가 있을 경우, 분리하여 장르를 찾기
             words_to_check = word.split()  # 띄어쓰기로 분리된 단어들
 
             for w in words_to_check:
-                if w in genre_list:
-                    matching_genres.append(w)
+                # 입력된 단어를 장르 매핑 사전에서 찾아 매핑된 값으로 변환
+                mapped_word = genre_mapping.get(w, w)
+                if mapped_word in genre_list:
+                    matching_genres.append(mapped_word)
 
         # 중복된 장르를 제거하기 위해 set을 사용한 후 리스트로 변환
         matching_genres = list(set(matching_genres))
@@ -316,6 +328,26 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
             # print(sim_scores)
             sim_scores = sim_scores[:5]
+            top_score = sim_scores[0][1]
+            top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
+
+            if len(top_movies) > 3:
+                top_movies = random.sample(top_movies, 3)
+            elif len(top_movies) < 3:
+                remaining_count = 3 - len(top_movies)
+                remaining_movies = sim_scores[len(top_movies):]
+
+                if len(remaining_movies) >= remaining_count:
+                    if remaining_movies[0][1] == remaining_movies[-1][1]:
+                        additional_movies = random.sample(remaining_movies, remaining_count)
+                    else:
+                        additional_movies = remaining_movies[:remaining_count]
+                else:
+                    additional_movies = remaining_movies
+
+                top_movies.extend(additional_movies)
+
+            top_movies = top_movies[:3]
             movie_indices = [i[0] for i in sim_scores]
             recommendations = data.iloc[movie_indices]
 
@@ -392,6 +424,26 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
             # 상위 5개 추천
             sim_scores = sim_scores[:5]
+            top_score = sim_scores[0][1]
+            top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
+
+            if len(top_movies) > 3:
+                top_movies = random.sample(top_movies, 3)
+            elif len(top_movies) < 3:
+                remaining_count = 3 - len(top_movies)
+                remaining_movies = sim_scores[len(top_movies):]
+
+                if len(remaining_movies) >= remaining_count:
+                    if remaining_movies[0][1] == remaining_movies[-1][1]:
+                        additional_movies = random.sample(remaining_movies, remaining_count)
+                    else:
+                        additional_movies = remaining_movies[:remaining_count]
+                else:
+                    additional_movies = remaining_movies
+
+                top_movies.extend(additional_movies)
+
+            top_movies = top_movies[:3]
             movie_indices = [i[0] for i in sim_scores]
             recommendations = data.iloc[movie_indices]
 
@@ -420,12 +472,98 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
 
             # 유사도 점수로 정렬 후 상위 5개를 선택
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
+            top_score = sim_scores[0][1]
+            top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
+
+            if len(top_movies) > 3:
+                top_movies = random.sample(top_movies, 3)
+            elif len(top_movies) < 3:
+                remaining_count = 3 - len(top_movies)
+                remaining_movies = sim_scores[len(top_movies):]
+
+                if len(remaining_movies) >= remaining_count:
+                    if remaining_movies[0][1] == remaining_movies[-1][1]:
+                        additional_movies = random.sample(remaining_movies, remaining_count)
+                    else:
+                        additional_movies = remaining_movies[:remaining_count]
+                else:
+                    additional_movies = remaining_movies
+
+                top_movies.extend(additional_movies)
+
+            top_movies = top_movies[:3]
             movie_indices = [i[0] for i in sim_scores]
             similarity_scores = [i[1] for i in sim_scores]
 
             # 영화 제목과 장르를 리스트로 반환
             recommendations = data.iloc[movie_indices][['영화명', '평점', '연도', '상영시간', '연령', '감독', '출연진', '줄거리', '장르']].values.tolist()
             return recommendations, similarity_scores
+        elif any(word in ['재미', '재미있는 영화', '흥미', '흥미있는 영화', '재미있는', '흥미있는'] for word, tag in nnp_and_nng_review):
+            for idx in filtered_data.index:
+                genre_score = 0
+
+                if genre:
+                    # 입력된 장르를 쉼표로 구분하여 소문자로 변환하고 공백을 제거한 후 리스트로 만듦
+                    input_genres = [g.strip().lower() for g in genre.split(',')]
+                    # 영화의 장르를 소문자로 변환하고 공백을 제거한 후 리스트로 만듦
+                    searched_m_genres = [g.strip().lower() for g in data.loc[idx, '장르'].split(',')]
+                    # 입력된 각 장르에 대해 영화의 장르 목록과 비교하여 일치하는 경우 가중치 적용
+                    genre_score = 0  # 장르 점수 초기화
+                    for input_genre in input_genres:
+                        if input_genre in searched_m_genres:
+                            genre_score += weights['genre_weight']  # 일치하는 장르마다 가중치 추가
+
+                director_score = weights['director_weight'] if director and director in data.loc[idx, '감독'] else 0
+                actor_score = weights['actor_weight'] if actor and actor in data.loc[idx, '출연진'] else 0
+
+                genre_list = data.loc[idx, '장르'].split(',')
+                genre_weight_score = 0
+                genre_weights_list = []
+
+                if gender and age:
+                    for genre1 in genre_list:
+                        genre1 = genre1.strip()
+                        for column in genre_weights.columns:
+                            if any(genre_part.strip() == genre1 for genre_part in column.split('/')):
+                                genre_weight = genre_weights[column].values[0]
+                                genre_weights_list.append(genre_weight)
+                                break
+
+                    if len(genre_weights_list) >= 2:
+                        genre_weights_list.sort(reverse=True)
+                        genre_weight_score = genre_weights_list[0] + genre_weights_list[1]
+                        genre_weight_score /= 2
+                    else:
+                        genre_weight_score = sum(genre_weights_list)
+
+                favored_genre_weight_score = 0
+                if favored_genres:
+                    for favor_genre in favored_genres:
+                        if favor_genre in genre_list:
+                            favored_genre_weight_score += weights['favored_genre_weight']
+
+                total_score = genre_score + director_score + actor_score + genre_weight_score + favored_genre_weight_score
+                sim_scores.append((idx, total_score))
+
+            # 기존 코드에 따라 유사도 점수로 정렬
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            print(sim_scores)
+
+            # 최종 결과에서 상위 10% 평점을 가진 영화들만 선택
+            top_10_percent_threshold = data['평점'].quantile(0.9)
+            top_10_percent_movies = [idx for idx, score in sim_scores if data.loc[idx, '평점'] >= top_10_percent_threshold]
+            
+            # 상위 10% 영화 중에서 3개를 랜덤으로 선택
+            if len(top_10_percent_movies) >= 3:
+                selected_movies = random.sample(top_10_percent_movies, 3)
+            else:
+                selected_movies = top_10_percent_movies  # 상위 10% 영화가 3개 미만인 경우 모든 영화를 선택
+
+            # 추천 영화 데이터 생성
+            recommendations = data.iloc[selected_movies]
+            similarity_scores = [score for idx, score in sim_scores if idx in selected_movies]
+
+            return recommendations[['영화명', '장르', '평점']].values.tolist(), similarity_scores
         else:
             for idx in filtered_data.index:
                 genre_score = 0
@@ -480,6 +618,28 @@ def get_recommendations(movie_title=None, genre=None, director=None, actor = Non
                 sim_scores.append((idx, total_score))
 
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:5]
+                        # 최상위 점수를 가진 영화들 찾기
+            
+            top_score = sim_scores[0][1]
+            top_movies = [sim_scores[i] for i in range(len(sim_scores)) if sim_scores[i][1] == top_score]
+
+            if len(top_movies) > 3:
+                top_movies = random.sample(top_movies, 3)
+            elif len(top_movies) < 3:
+                remaining_count = 3 - len(top_movies)
+                remaining_movies = sim_scores[len(top_movies):]
+
+                if len(remaining_movies) >= remaining_count:
+                    if remaining_movies[0][1] == remaining_movies[-1][1]:
+                        additional_movies = random.sample(remaining_movies, remaining_count)
+                    else:
+                        additional_movies = remaining_movies[:remaining_count]
+                else:
+                    additional_movies = remaining_movies
+
+                top_movies.extend(additional_movies)
+
+            top_movies = top_movies[:3]
             movie_indices = [i[0] for i in sim_scores]
             recommendations = data.iloc[movie_indices]
             similarity_scores = [i[1] for i in sim_scores]
