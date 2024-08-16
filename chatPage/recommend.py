@@ -130,12 +130,46 @@ def preprocessing(user_input, komoran, remove_stopwords=False, stop_words=[]):
 
     return filtered_review, nnp_and_nng_review
 
-def find_matching_movie(filtered_review, movie_name_genre):
-    if filtered_review: # filtered_review가 비어 있지 않은 경우에만 수행
+def find_matching_genre(nnp_and_nng_review, genres):
+    # 장르 매핑 사전 추가
+    genre_mapping = {
+        '서부': '서부극',
+        '웨스턴': '서부극',
+        '카우보이': '서부극',
+        'western': '서부극'
+    }
+
+    # nnp_and_nng_review가 비어 있지 않은 경우에만 수행
+    if nnp_and_nng_review:
+        matching_genres = []
+        matched_words = []
+        genre_list = genres  # 장르 목록을 리스트로 변환하여 일치 여부를 빠르게 검사
+
+        for word, tag in nnp_and_nng_review:
+            # 명사 사이에 띄어쓰기가 있을 경우, 분리하여 장르를 찾기
+            words_to_check = word.split()  # 띄어쓰기로 분리된 단어들
+
+            for w in words_to_check:
+                # 입력된 단어를 장르 매핑 사전에서 찾아 매핑된 값으로 변환
+                mapped_word = genre_mapping.get(w, w)
+                if mapped_word in genre_list:
+                    matching_genres.append(mapped_word)
+                    matched_words.append(w)  # 매칭된 단어를 저장
+
+        # 중복된 장르를 제거하기 위해 set을 사용한 후 리스트로 변환
+        matching_genres = list(set(matching_genres))
+        return ', '.join(matching_genres), matched_words  # 매칭된 장르와 단어 반환
+
+    return None, []
+
+def find_matching_movie(filtered_review, movie_name_genre, matched_genre_words):
+    # filtered_review가 비어 있지 않은 경우에만 수행
+    if filtered_review:
         for word, tag in filtered_review:
-            for movie_name in movie_name_genre['영화명']:
-                if re.search(word, movie_name):
-                    return movie_name_genre[movie_name_genre['영화명'] == movie_name]
+            if word not in matched_genre_words:  # 장르에서 매칭된 단어는 제외
+                for movie_name in movie_name_genre['영화명']:
+                    if re.search(word, movie_name):
+                        return movie_name_genre[movie_name_genre['영화명'] == movie_name]
 
     return None
 
@@ -159,35 +193,6 @@ def find_matching_director(filtered_review, directors):
 
     return None
 
-def find_matching_genre(nnp_and_nng_review, genres):
-    # 장르 매핑 사전 추가
-    genre_mapping = {
-        '서부': '서부극',
-        '웨스턴': '서부극',
-        '카우보이': '서부극',
-        'western': '서부극'
-    }
-
-    # nnp_and_nng_review가 비어 있지 않은 경우에만 수행
-    if nnp_and_nng_review:
-        matching_genres = []
-        genre_list = genres  # 장르 목록을 리스트로 변환하여 일치 여부를 빠르게 검사
-
-        for word, tag in nnp_and_nng_review:
-            # 명사 사이에 띄어쓰기가 있을 경우, 분리하여 장르를 찾기
-            words_to_check = word.split()  # 띄어쓰기로 분리된 단어들
-
-            for w in words_to_check:
-                # 입력된 단어를 장르 매핑 사전에서 찾아 매핑된 값으로 변환
-                mapped_word = genre_mapping.get(w, w)
-                if mapped_word in genre_list:
-                    matching_genres.append(mapped_word)
-
-        # 중복된 장르를 제거하기 위해 set을 사용한 후 리스트로 변환
-        matching_genres = list(set(matching_genres))
-        return ', '.join(matching_genres)
-
-    return None
 
 # 연령대와 성별을 받아 해당하는 가중치 행을 찾는 함수
 def get_genre_weights(age, gender):
@@ -661,9 +666,10 @@ def process_user_input(user_input, komoran, movie_name_genre, directors, cast_me
     """사용자 입력을 전처리하고 영화 정보 검색"""
     filtered_review, nnp_and_nng_review = preprocessing(user_input, komoran, remove_stopwords=False, stop_words=stop_words_ko)
     
-    movie_found = find_matching_movie(filtered_review, movie_name_genre)
+    genre_found, matched_genre_words = find_matching_genre(nnp_and_nng_review, genres)
+    movie_found = find_matching_movie(filtered_review, movie_name_genre, matched_genre_words)
     director_found = find_matching_director(filtered_review, directors)
-    genre_found = find_matching_genre(nnp_and_nng_review, genres)
+    
     person_found = find_matching_cast(filtered_review, cast_members)
 
     return filtered_review, nnp_and_nng_review, movie_found, genre_found, director_found, person_found
